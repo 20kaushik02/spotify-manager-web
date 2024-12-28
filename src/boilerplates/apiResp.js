@@ -6,21 +6,21 @@ import LocalStorage from "../utils/localStorageHelper";
 const refreshAuth = useContext(RefreshAuthContext);
 
 if (resp === undefined) {
-	showErrorToastNotification(<p>Please try again after sometime</p>);
+	showErrorToastNotification("Please try again after sometime");
 	return;
 } else {
 	if (resp.status === 200) {
-		showSuccessToastNotification(<p>{resp.data.message}</p>);
+		showSuccessToastNotification(resp.data.message);
 		// proceed with data
 	} else if (resp.status >= 400 && resp.status < 500) {
 		if (resp.data.auth === false) {
 			LocalStorage.clear();
 			refreshAuth();
 		}
-		showErrorToastNotification(<p>{resp.data.message}</p>);
+		showErrorToastNotification(resp.data.message);
 		return;
 	} else if (resp.status >= 500 && resp.status < 600) {
-		showErrorToastNotification(<p>{resp.data.message}</p>);
+		showErrorToastNotification(resp.data.message);
 		return;
 	}
 }

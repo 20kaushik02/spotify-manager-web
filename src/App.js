@@ -1,24 +1,116 @@
-import logo from './logo.svg';
+// Libraries
+import { createContext, useEffect, useState } from 'react';
+import { BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+
+// Styles
 import './App.css';
 
+// Assets
+
+// Utils
+import ScrollToTop from './utils/ScrollToTop';
+
+// Components
+import Navbar from './components/Navbar';
+
+// Routes
+import AllRoutes from './routes/AllRoutes';
+import { showErrorToastNotification, showInfoToastNotification, showWarnToastNotification } from './components/ToastNotification';
+import { apiAuthCheck, apiAuthRefresh } from './api/auth';
+
+// Contexts
+export const WidthContext = createContext();
+export const AuthContext = createContext();
+export const RefreshAuthContext = createContext();
+
 function App() {
+  // States
+  const [width, setWidth] = useState(0);
+  const [auth, setAuth] = useState(false);
+
+  const refreshAuth = async () => {
+    const resp = await apiAuthCheck();
+    if (resp === undefined) {
+      showErrorToastNotification("Please try again after sometime");
+      setAuth(false);
+      return false;
+    }
+    if (resp.status === 200) {
+      // Success
+      setAuth(true);
+      return true;
+    }
+    if (resp.status >= 500) {
+      setAuth(false);
+      showErrorToastNotification(resp.data.message);
+      return false;
+    }
+    if (resp.status === 401) {
+      // reauth
+      const refreshResp = await apiAuthRefresh();
+      if (refreshResp === undefined) {
+        showErrorToastNotification("Please try again after sometime");
+        setAuth(false);
+        return false;
+      }
+      if (refreshResp.status === 200) {
+        // Success
+        showInfoToastNotification("Refreshed session.");
+        setAuth(true);
+        return true;
+      }
+      setAuth(false);
+      return false;
+    }
+    setAuth(false);
+    showWarnToastNotification(resp.data.message);
+    return false;
+  }
+
+  useEffect(() => {
+    (async () => {
+      await refreshAuth();
+    })();
+  }, []);
+
+  const updateWindowDimensions = () => {
+    setWidth(window.innerWidth);
+  };
+
+  // Get window dimensions on resize
+  useEffect(() => {
+    window.addEventListener("resize", updateWindowDimensions);
+
+    return () => {
+      window.removeEventListener("resize", updateWindowDimensions);
+    };
+  }, []);
+
+  useEffect(() => {
+    updateWindowDimensions();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <WidthContext.Provider value={width}>
+      <AuthContext.Provider value={auth}>
+        <div className="App">
+          <BrowserRouter>
+            <ScrollToTop />
+            <Navbar />
+            <AllRoutes />
+          </BrowserRouter>
+          <ToastContainer
+            id={"notif-container"}
+            position={"bottom-center"}
+            theme={"dark"}
+            stacked
+            newestOnTop
+            draggable
+          />
+        </div>
+      </AuthContext.Provider>
+    </WidthContext.Provider>
   );
 }
 
