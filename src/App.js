@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 // Styles
-import './App.css';
+import styles from './App.module.css';
 
 // Assets
 
@@ -94,11 +94,13 @@ function App() {
   return (
     <WidthContext.Provider value={width}>
       <AuthContext.Provider value={auth}>
-        <div className="App">
+        <div className={styles.app_wrapper}>
           <BrowserRouter>
             <ScrollToTop />
             <Navbar />
-            <AllRoutes />
+            <div className={styles.page_wrapper}>
+              <AllRoutes />
+            </div>
           </BrowserRouter>
           <ToastContainer
             id={"notif-container"}

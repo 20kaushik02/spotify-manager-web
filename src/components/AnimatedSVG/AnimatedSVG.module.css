@@ -1,0 +1,20 @@
+/* the value 54150 is decided by getting the length of the path (54122 for the logo asset) */
+
+.svgWrapper path {
+  stroke-dasharray: 54150;
+  stroke-dashoffset: 54150;
+  animation: draw 5s ease-in-out infinite;
+  animation-fill-mode: both;
+}
+
+@keyframes draw {
+  0% {
+    stroke-dashoffset: 54150;
+  }
+  60% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 54150;
+  }
+}

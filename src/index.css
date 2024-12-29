@@ -1,13 +1,110 @@
-body {
+/*===== CSS GLOBAL VARIABLES =====*/
+
+/* Font Size */
+:root {
+  --normalFontSize: 16px;
+  --headingFont: AileronFont;
+  --primaryFont: AileronFont;
+  --text: whitesmoke;
+  --bgBlue: #040a53;
+  --darkBlue: #061320;
+  --vscBlue: #1b81a8;
+  --dYellow: #5b3c15;
+  --lYellow: #fcbe72;
+
+  --primary: #04005e;
+  --secondry: #440bd4;
+  --tertiary: #ff2079;
+  --accent: #e92efb;
+  --bg: #262626;
+  --blue1: #405de6;
+  --blue2: #5851d8;
+  --purple1: #833ab4;
+  --pink1: #c13584;
+  --pink2: #e1306c;
+  --red1: #fd1d1d;
+  --orange1: #f56040;
+  --orange2: #f77737;
+  --orange3: #fcaf45;
+  --orange4: #ffdc80;
+
+  --fun_b: #b00b69;
+  --fun_d: #1d1cc5;
+}
+
+/* Colors */
+
+/* Fonts */
+@font-face {
+  font-family: AileronFont;
+  src: url(/src/assets/fonts/Aileron-Black.otf);
+  font-weight: bold;
+}
+@font-face {
+  font-family: AileronFont;
+  src: url(/src/assets/fonts/Aileron-Light.otf);
+  font-weight: light;
+}
+
+/* rem-based (root element) sizes */
+:root {
+  --mb-1: 0.5rem;
+  --mb-2: 1rem;
+  --mb-3: 1.5rem;
+  --mb-4: 2rem;
+  --mb-5: 2.5rem;
+  --mb-6: 3rem;
+}
+
+/*===== z-index =====*/
+:root {
+  --z-back: -10;
+  --z-normal: 1;
+  --z-tooltip: 10;
+  --z-fixed: 100;
+}
+
+/*===== BASE =====*/
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+* {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+ul {
+  padding: 0;
+  list-style: outside;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+body {
+  font-family: var(--primaryFont),-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
+  font-size: var(--normalFontSize);
+  color: var(--text);
+  background-color: var(--bgBlue);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  letter-spacing: 1.5px;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }

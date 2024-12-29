@@ -1,14 +1,23 @@
-import React from 'react'
+import React, { useContext } from 'react'
+
 import styles from "./Navbar.module.css";
-import { NavLink } from 'react-router-dom';
+
+import { AuthContext } from "../../App";
+import StyledNavLink from '../StyledNavLink';
 
 const Navbar = () => {
+  const auth = useContext(AuthContext);
+
   return (
     <nav className={styles.navbar_wrapper}>
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="/login">Login</NavLink>
-      <NavLink to="/graph">Graph</NavLink>
-      <NavLink to="/graph2">Graph2</NavLink>
+      <StyledNavLink path="/" text="Home" />
+      {
+        auth === true ?
+          <StyledNavLink path="/logout" text="Logout" /> :
+          <StyledNavLink path="/login" text="Login" />
+      }
+      <StyledNavLink path="/graph" text="Graph" />
+      <StyledNavLink path="/about" text="About" />
     </nav>
   )
 }

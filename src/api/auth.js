@@ -1,7 +1,5 @@
 import { axiosInstance } from "./axiosInstance";
-
-const authHealthCheckURL = "auth-health";
-const authRefreshURL = "api/auth/refresh";
+import { authHealthCheckURL, authRefreshURL } from "./paths";
 
 export const apiAuthCheck = async () => {
 	try {
