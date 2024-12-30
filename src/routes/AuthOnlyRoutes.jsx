@@ -5,19 +5,19 @@ import { AuthContext } from "../App";
 import { showWarnToastNotification } from "../components/ToastNotification";
 
 function AuthOnlyRoutes() {
-	let location = useLocation();
-	const auth = useContext(AuthContext);
+  let location = useLocation();
+  const auth = useContext(AuthContext);
 
-	const handleRouteRender = () => {
-		if (auth !== true) {
-			showWarnToastNotification(<p>Sign in, please!</p>);
-			return <Navigate to={"/login"} state={{ from: location }} />;
-		} else {
-			return <Outlet />;
-		}
-	};
+  const handleRouteRender = () => {
+    if (auth !== true) {
+      showWarnToastNotification(<p>Sign in, please!</p>);
+      return <Navigate to={"/login"} state={{ from: location }} />;
+    } else {
+      return <Outlet />;
+    }
+  };
 
-	return handleRouteRender();
+  return handleRouteRender();
 }
 
 export default AuthOnlyRoutes;

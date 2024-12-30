@@ -5,19 +5,19 @@ import { AuthContext } from "../App";
 import { showWarnToastNotification } from "../components/ToastNotification";
 
 function UnAuthOnlyRoutes() {
-	let location = useLocation();
-	const auth = useContext(AuthContext);
+  let location = useLocation();
+  const auth = useContext(AuthContext);
 
-	const handleRouteRender = () => {
-		if (auth !== true) {
-			return <Outlet />;
-		} else {
-			showWarnToastNotification(<p>Already logged in!</p>);
-			return <Navigate to={"/graph"} state={{ from: location }} />;
-		}
-	};
+  const handleRouteRender = () => {
+    if (auth !== true) {
+      return <Outlet />;
+    } else {
+      showWarnToastNotification(<p>Already logged in!</p>);
+      return <Navigate to={"/graph"} state={{ from: location }} />;
+    }
+  };
 
-	return handleRouteRender();
+  return handleRouteRender();
 }
 
 export default UnAuthOnlyRoutes;
