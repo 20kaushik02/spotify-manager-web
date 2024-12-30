@@ -18,15 +18,14 @@ const StyledNavLink = ({
   activeClass = styles.active_link,
   inactiveClass = styles.inactive_link
 }) => {
+
   return (
-    <div className={styles.link_wrapper}>
-      <NavLink
-        to={path}
-        className={({ isActive }) => isActive ? activeClass : inactiveClass}
-      >
-        {text}
-      </NavLink>
-    </div>
+    <NavLink
+      to={path}
+      className={({ isActive }) => isActive ? activeClass : inactiveClass}
+    >
+      {text}
+    </NavLink>
   )
 }
 

@@ -3,33 +3,14 @@
 /* Font Size */
 :root {
   --normalFontSize: 16px;
+  --headingFontSize: 24px;
   --headingFont: AileronFont;
   --primaryFont: AileronFont;
   --text: whitesmoke;
-  --bgBlue: #040a53;
-  --darkBlue: #061320;
-  --vscBlue: #1b81a8;
-  --dYellow: #5b3c15;
-  --lYellow: #fcbe72;
-
-  --primary: #04005e;
-  --secondry: #440bd4;
-  --tertiary: #ff2079;
-  --accent: #e92efb;
-  --bg: #262626;
-  --blue1: #405de6;
-  --blue2: #5851d8;
-  --purple1: #833ab4;
-  --pink1: #c13584;
-  --pink2: #e1306c;
-  --red1: #fd1d1d;
-  --orange1: #f56040;
-  --orange2: #f77737;
-  --orange3: #fcaf45;
-  --orange4: #ffdc80;
-
-  --fun_b: #b00b69;
-  --fun_d: #1d1cc5;
+  --bg: #443c9c;
+  --bgNav: #6360b1;
+  --bgLinkActive: #362e7b;
+  --bgLinkInactive: #242c44;
 }
 
 /* Colors */
@@ -97,7 +78,7 @@ body {
     "Helvetica Neue", sans-serif;
   font-size: var(--normalFontSize);
   color: var(--text);
-  background-color: var(--bgBlue);
+  background-color: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;

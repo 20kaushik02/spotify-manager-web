@@ -1,7 +1,6 @@
 import React, { useEffect } from "react"
 import { useSearchParams } from "react-router-dom";
 import styles from "./Landing.module.css"
-import logo from '../../assets/icons/logo.svg';
 import { showInfoToastNotification, showSuccessToastNotification } from "../../components/ToastNotification";
 import AnimatedSVG from "../../components/AnimatedSVG";
 

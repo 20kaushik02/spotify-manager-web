@@ -13,7 +13,7 @@ function UnAuthOnlyRoutes() {
       return <Outlet />;
     } else {
       showWarnToastNotification(<p>Already logged in!</p>);
-      return <Navigate to={"/graph"} state={{ from: location }} />;
+      return <Navigate to={"/"} state={{ from: location }} />;
     }
   };
 

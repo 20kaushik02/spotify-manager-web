@@ -1,5 +1,6 @@
 .navbar_wrapper {
   display: flex;
+  background-color: var(--bgNav);
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
@@ -8,4 +9,5 @@
   left: 0;
   height: 100vh;
   width: 10vw;
+  padding: var(--mb-3);
 }

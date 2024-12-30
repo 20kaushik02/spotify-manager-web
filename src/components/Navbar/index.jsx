@@ -10,13 +10,12 @@ const Navbar = () => {
 
   return (
     <nav className={styles.navbar_wrapper}>
-      <StyledNavLink path="/" text="Home" />
-      <StyledNavLink path="/graph" text="Graph" />
-      <StyledNavLink path="/about" text="About" />
+      <StyledNavLink exact path="/" text="About" />
+      <StyledNavLink exact path="/graph" text="Graph" />
       {
         auth === true ?
-          <StyledNavLink path="/logout" text="Logout" /> :
-          <StyledNavLink path="/login" text="Login" />
+          <StyledNavLink exact path="/logout" text="Logout" /> :
+          <StyledNavLink exact path="/login" text="Login" />
       }
     </nav>
   )

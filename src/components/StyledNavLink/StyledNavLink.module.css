@@ -1,12 +1,18 @@
-.link_wrapper {
-  padding: 2em;
-  border-radius: 20%;
+a {
+  padding: var(--mb-3);
+  border-radius: 2%;
+  width: 100%;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text);
 }
 
 .active_link {
-
+  background-color: var(--bgLinkActive);
+  box-shadow: 2px 2px black;
 }
 
 .inactive_link {
-
+  background-color: var(--bgLinkInactive);
+  box-shadow: 2px 2px var(--bg);
 }

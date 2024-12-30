@@ -60,7 +60,18 @@ function App() {
         setAuth(true);
         return true;
       }
+      if (refreshResp.status >= 500) {
+        setAuth(false);
+        showErrorToastNotification(refreshResp.data.message);
+        return false;
+      }
+      if (refreshResp.status === 401) {
+        // not authed
+        setAuth(false);
+        return false;
+      }
       setAuth(false);
+      showWarnToastNotification(refreshResp.data.message);
       return false;
     }
     setAuth(false);

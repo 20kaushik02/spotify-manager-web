@@ -7,7 +7,8 @@ const AnimatedSVG = ({ stroke = "#ffffff" }) => {
       {/* width, height and viewBox are necessary */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="512" height="512" viewBox="0 0 512 512"
+        width="256" height="256" // adjust size here
+        viewBox="0 0 512 512"
         preserveAspectRatio="xMidYMid meet"
       >
         <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)">
