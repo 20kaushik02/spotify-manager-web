@@ -105,23 +105,25 @@ function App() {
   return (
     <WidthContext.Provider value={width}>
       <AuthContext.Provider value={auth}>
-        <div className={styles.app_wrapper}>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Navbar />
-            <div className={styles.page_wrapper}>
-              <AllRoutes />
-            </div>
-          </BrowserRouter>
-          <ToastContainer
-            id={"notif-container"}
-            position={"bottom-center"}
-            theme={"dark"}
-            stacked
-            newestOnTop
-            draggable
-          />
-        </div>
+        <RefreshAuthContext.Provider value={refreshAuth}>
+          <div className={styles.app_wrapper}>
+            <BrowserRouter>
+              <ScrollToTop />
+              <Navbar />
+              <div className={styles.page_wrapper}>
+                <AllRoutes />
+              </div>
+            </BrowserRouter>
+            <ToastContainer
+              id={"notif-container"}
+              position={"bottom-center"}
+              theme={"dark"}
+              stacked
+              newestOnTop
+              draggable
+            />
+          </div>
+        </RefreshAuthContext.Provider>
       </AuthContext.Provider>
     </WidthContext.Provider>
   );

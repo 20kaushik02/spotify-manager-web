@@ -5,3 +5,5 @@ export const authLogoutURL = backendDomain + "api/auth/logout"
 
 export const authHealthCheckURL = "auth-health";
 export const authRefreshURL = "api/auth/refresh";
+
+export const opFetchGraphURL = "api/operations/fetch";
