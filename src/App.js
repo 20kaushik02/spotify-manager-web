@@ -18,6 +18,7 @@ import Navbar from './components/Navbar';
 import AllRoutes from './routes/AllRoutes';
 import { showErrorToastNotification, showInfoToastNotification, showWarnToastNotification } from './components/ToastNotification';
 import { apiAuthCheck, apiAuthRefresh } from './api/auth';
+import { ReactFlowProvider } from '@xyflow/react';
 
 // Contexts
 export const WidthContext = createContext();
@@ -106,23 +107,25 @@ function App() {
     <WidthContext.Provider value={width}>
       <AuthContext.Provider value={auth}>
         <RefreshAuthContext.Provider value={refreshAuth}>
-          <div className={styles.app_wrapper}>
-            <BrowserRouter>
-              <ScrollToTop />
-              <Navbar />
-              <div className={styles.page_wrapper}>
-                <AllRoutes />
-              </div>
-            </BrowserRouter>
-            <ToastContainer
-              id={"notif-container"}
-              position={"bottom-center"}
-              theme={"dark"}
-              stacked
-              newestOnTop
-              draggable
-            />
-          </div>
+          <ReactFlowProvider>
+            <div className={styles.app_wrapper}>
+              <BrowserRouter>
+                <ScrollToTop />
+                <Navbar />
+                <div className={styles.page_wrapper}>
+                  <AllRoutes />
+                </div>
+              </BrowserRouter>
+              <ToastContainer
+                id={"notif-container"}
+                position={"bottom-center"}
+                theme={"dark"}
+                stacked
+                newestOnTop
+                draggable
+              />
+            </div>
+          </ReactFlowProvider>
         </RefreshAuthContext.Provider>
       </AuthContext.Provider>
     </WidthContext.Provider>

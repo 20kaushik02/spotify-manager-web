@@ -1,11 +1,17 @@
-import React from 'react'
+import React from 'react';
 import styles from "./Button.module.css";
 
-const Button = ({ child }) => {
+function Button({ children, onClickMethod }) {
+  const clickHandler = (e) => {
+    e.preventDefault();
+    onClickMethod();
+  }
   return (
-    <>
-      {child}
-    </>
+    <button type="button"
+      className={styles.btn_wrapper}
+      onClick={clickHandler}>
+      {children}
+    </button>
   )
 }
 

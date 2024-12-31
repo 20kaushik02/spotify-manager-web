@@ -6,18 +6,20 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  Panel,
+  useReactFlow,
+  MarkerType,
 } from '@xyflow/react';
 import Dagre from '@dagrejs/dagre';
 
 import '@xyflow/react/dist/style.css';
 import styles from './Graph.module.css';
 
-import { showErrorToastNotification, showInfoToastNotification, showSuccessToastNotification } from '../../components/ToastNotification';
+import { showErrorToastNotification, showInfoToastNotification } from '../../components/ToastNotification';
 
 import { apiFetchGraph } from '../../api/operations';
 
 import { RefreshAuthContext } from "../../App";
+import Button from '../../components/Button';
 
 const initialNodes = [];
 // const initialNodes = [
@@ -33,67 +35,83 @@ const initialEdges = [];
 const nodeOffsets = {
   connected: {
     origin: {
-      x: 1000,
-      y: 0
-    },
-    scaling: {
-      x: 270,
-      y: 90
-    }
-  },
-  unconnected: {
-    origin: {
       x: 0,
       y: 0
     },
     scaling: {
-      x: 180,
-      y: 60
+      x: 240,
+      y: 80
+    }
+  },
+  unconnected: {
+    origin: {
+      x: 800,
+      y: 0
+    },
+    scaling: {
+      x: 160,
+      y: 40
     }
   }
 }
 
+/** @type {import('@xyflow/react').DefaultEdgeOptions} */
 const edgeOptions = {
   animated: true,
   style: {
-    stroke: 'white',
+    stroke: "white",
+    strokeWidth: 2,
   },
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: "white",
+    width: 40,
+    height: 40,
+  }
 };
 
 const proOptions = { hideAttribution: true };
 
 const Graph = () => {
   const refreshAuth = useContext(RefreshAuthContext);
+  const flowInstance = useReactFlow();
   const [playlistNodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [linkEdges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  const onFlowInit = (instance) => {
+    console.debug("flow loaded");
+  }
+
   const onConnect = useCallback((params) => {
     setEdges((eds) => addEdge(params, eds));
+    console.debug("new connection");
+    console.debug(params);
   }, [setEdges]);
 
   const getLayoutedElements = (nodes, edges, options = { direction: "TB" }) => {
     const g = new Dagre.graphlib.Graph()
     g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({ rankdir: options.direction });
+    g.setGraph({ rankdir: options.direction, nodesep: 200, edgesep: 200, ranksep: 200 });
 
     edges.forEach((edge) => g.setEdge(edge.source, edge.target));
 
-    // const connectedNodes = new Set(edges.flatMap(edge => [edge.source, edge.target]));
-    // const unconnectedNodes = nodes.filter(node => !connectedNodes.has(node.id));
+    const connectedNodesID = new Set(edges.flatMap(edge => [edge.source, edge.target]));
+    const connectedNodes = nodes.filter(node => connectedNodesID.has(node.id));
+    const unconnectedNodes = nodes.filter(node => !connectedNodesID.has(node.id));
+
     nodes.forEach((node) => {
-      // if (connectedNodes.has(node.id)) {
       g.setNode(node.id, {
         ...node,
         width: node.measured?.width ?? 0,
         height: node.measured?.height ?? 0,
       })
-      // }
     });
 
     Dagre.layout(g);
 
-    return {
-      nodes: nodes.map((node) => {
+    let finalLayout = { edges };
+    finalLayout.nodes = [
+      ...connectedNodes.map((node) => {
         const position = g.node(node.id);
         // We are shifting the dagre node position (anchor=center center) to the top left
         // so it matches the React Flow node anchor point (top left).
@@ -102,10 +120,31 @@ const Graph = () => {
 
         return { ...node, position: { x, y } };
       }),
-      edges,
-    };
+      ...unconnectedNodes.map((node, idx) => {
+        const position = {
+          x: nodeOffsets.unconnected.origin.x + Math.floor(idx / 20) * nodeOffsets.unconnected.scaling.x,
+          y: nodeOffsets.unconnected.origin.y + Math.floor(idx % 20) * nodeOffsets.unconnected.scaling.y,
+        };
+        const x = position.x - (node.measured?.width ?? 0) / 2;
+        const y = position.y - (node.measured?.height ?? 0) / 2;
+
+        return { ...node, position: { x, y } };
+      })
+    ];
+
+    console.debug("layout generated");
+    return finalLayout;
   };
 
+  const arrangeLayout = (direction) => {
+    const layouted = getLayoutedElements(playlistNodes, linkEdges, { direction });
+
+    setNodes([...layouted.nodes]);
+    setEdges([...layouted.edges]);
+
+    setTimeout(flowInstance.fitView);
+    console.debug("layout applied");
+  }
 
   useEffect(() => {
     const fetchGraph = async () => {
@@ -120,13 +159,13 @@ const Graph = () => {
           return {
             id: `${pl.playlistID}`,
             position: {
-              x: nodeOffsets.unconnected.origin.x + Math.floor(idx / 5) * nodeOffsets.unconnected.scaling.x,
-              y: nodeOffsets.unconnected.origin.y + Math.floor(idx % 5) * nodeOffsets.unconnected.scaling.y,
+              x: nodeOffsets.unconnected.origin.x + Math.floor(idx / 15) * nodeOffsets.unconnected.scaling.x,
+              y: nodeOffsets.unconnected.origin.y + Math.floor(idx % 15) * nodeOffsets.unconnected.scaling.y,
             },
             data: {
               label: pl.playlistName,
-              meta: {
-                name: pl.playlistName
+              metadata: {
+                pl
               }
             }
           }
@@ -152,16 +191,8 @@ const Graph = () => {
       showErrorToastNotification(resp.data.message);
       return;
     }
-
     fetchGraph();
-  }, []);
-
-  const arrangeLayout = (direction) => {
-    const layouted = getLayoutedElements(playlistNodes, linkEdges, { direction });
-
-    setNodes([...layouted.nodes]);
-    setEdges([...layouted.edges]);
-  }
+  }, [refreshAuth, setEdges, setNodes]);
 
   return (
     <div className={styles.graph_wrapper}>
@@ -169,21 +200,24 @@ const Graph = () => {
         nodes={playlistNodes}
         edges={linkEdges}
         defaultEdgeOptions={edgeOptions}
+        connectionLineType="smoothstep"
         fitView
         proOptions={proOptions}
+        colorMode={"light"}
+        onInit={onFlowInit}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
       >
         <Controls />
         <Background variant='dots' gap={36} size={3} />
-        <Panel position="top-right">
-          <button onClick={() => arrangeLayout('TB')}>Arrange vertically</button>
-          <button onClick={() => arrangeLayout('LR')}>Arrange horizontally</button>
-        </Panel>
+        {/* <Panel position="top-right"> */}
+        {/* <button onClick={() => arrangeLayout('TB')}>Arrange vertically</button> */}
+        {/* <button onClick={() => arrangeLayout('LR')}>Arrange horizontally</button> */}
+        {/* </Panel> */}
       </ReactFlow>
       <div className={styles.operations_wrapper}>
-        test
+        <Button onClickMethod={() => arrangeLayout('TB')}>Arrange</Button>
       </div>
     </div>
   )

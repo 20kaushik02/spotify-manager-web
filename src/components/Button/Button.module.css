@@ -1,0 +1,9 @@
+.btn_wrapper {
+  padding: var(--mb-2);
+  width: 100%;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: 8px 8px var(--bg);
+  background-color: var(--bgLinkInactive);
+}
