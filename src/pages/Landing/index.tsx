@@ -1,13 +1,14 @@
-import React, { useEffect } from "react"
+import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import styles from "./Landing.module.css"
-import { showInfoToastNotification, showSuccessToastNotification } from "../../components/ToastNotification";
+import styles from "./Landing.module.css";
+import {
+  showInfoToastNotification,
+  showSuccessToastNotification,
+} from "../../components/ToastNotification";
 import AnimatedSVG from "../../components/AnimatedSVG";
 
-
 const Landing = () => {
-  // eslint-disable-next-line no-unused-vars
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   useEffect(() => {
     if (searchParams.get("login") === "success") {
       showSuccessToastNotification("Logged in!");
@@ -27,7 +28,7 @@ const Landing = () => {
         <li>Periodic syncing</li>
       </ul>
     </>
-  )
-}
+  );
+};
 
-export default Landing
+export default Landing;

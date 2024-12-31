@@ -20,7 +20,8 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "react-scripts": "^5.0.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-plugin-css-modules": "^5.1.0"
   },
   "overrides": {
     "react-scripts": {

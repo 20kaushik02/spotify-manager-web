@@ -14,21 +14,21 @@ const AllRoutes = () => {
     <Routes>
       {/* Routes that require user to be logged in */}
       <Route element={<AuthOnlyRoutes />}>
-        <Route exact path="/logout" element={<Logout />} />
-        <Route exact path="/graph" element={<Graph />} />
-        {/* <Route exact path="/playlists" element={<Playlists />} /> */}
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/graph" element={<Graph />} />
+        {/* <Route path="/playlists" element={<Playlists />} /> */}
       </Route>
 
       {/* Routes that require user to be logged *out* */}
       <Route element={<UnAuthOnlyRoutes />}>
-        <Route exact path="/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
       </Route>
 
       {/* Common routes */}
-      <Route exact path="/" element={<Landing />} />
+      <Route path="/" element={<Landing />} />
 
       {/* 404 */}
-      <Route exact path="/page-not-found" element={<PageNotFound />} />
+      <Route path="/page-not-found" element={<PageNotFound />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

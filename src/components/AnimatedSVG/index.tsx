@@ -1,13 +1,15 @@
-import React from 'react';
+import React from "react";
 import styles from "./AnimatedSVG.module.css";
 
-const AnimatedSVG = ({ stroke = "#ffffff" }) => {
+const AnimatedSVG = () => {
+  const stroke = "#fff";
   return (
-    <div className={styles.svgWrapper}>
+    <div className={styles.svg_wrapper}>
       {/* width, height and viewBox are necessary */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="256" height="256" // adjust size here
+        width="256"
+        height="256" // adjust size here
         viewBox="0 0 512 512"
         preserveAspectRatio="xMidYMid meet"
       >
@@ -35,12 +37,12 @@ const AnimatedSVG = ({ stroke = "#ffffff" }) => {
             strokeMiterlimit={10}
             fill="none"
             id="svglength"
-          // document.getElementById('svglength').getTotalLength()
+            // document.getElementById('svglength').getTotalLength()
           />
         </g>
       </svg>
     </div>
-  )
-}
+  );
+};
 
 export default AnimatedSVG;

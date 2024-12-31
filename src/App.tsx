@@ -1,29 +1,33 @@
 // Libraries
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 // Styles
-import styles from './App.module.css';
+import styles from "./App.module.css";
 
 // Assets
 
 // Utils
-import ScrollToTop from './utils/ScrollToTop';
+import ScrollToTop from "./utils/ScrollToTop";
 
 // Components
-import Navbar from './components/Navbar';
+import Navbar from "./components/Navbar/index";
 
 // Routes
-import AllRoutes from './routes/AllRoutes';
-import { showErrorToastNotification, showInfoToastNotification, showWarnToastNotification } from './components/ToastNotification';
-import { apiAuthCheck, apiAuthRefresh } from './api/auth';
-import { ReactFlowProvider } from '@xyflow/react';
+import AllRoutes from "./routes/AllRoutes";
+import {
+  showErrorToastNotification,
+  showInfoToastNotification,
+  showWarnToastNotification,
+} from "./components/ToastNotification";
+import { apiAuthCheck, apiAuthRefresh } from "./api/auth";
+import { ReactFlowProvider } from "@xyflow/react";
 
 // Contexts
-export const WidthContext = createContext();
-export const AuthContext = createContext();
-export const RefreshAuthContext = createContext();
+export const WidthContext = createContext(0);
+export const AuthContext = createContext(false);
+export const RefreshAuthContext = createContext<any>(null);
 
 function App() {
   // States
@@ -78,7 +82,7 @@ function App() {
     setAuth(false);
     showWarnToastNotification(resp.data.message);
     return false;
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -117,7 +121,6 @@ function App() {
                 </div>
               </BrowserRouter>
               <ToastContainer
-                id={"notif-container"}
                 position={"bottom-center"}
                 theme={"dark"}
                 stacked

@@ -9,3 +9,8 @@ export const axiosInstance = axios.create({
     "Content-Type": "application/json"
   },
 });
+
+export interface apiRespBase {
+  message?: string,
+  errors?: any[],
+};
