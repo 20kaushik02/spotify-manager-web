@@ -1,4 +1,8 @@
 .btn_wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: var(--mb-2);
   width: 100%;
   cursor: pointer;

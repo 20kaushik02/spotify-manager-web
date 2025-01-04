@@ -1,11 +1,11 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   ReactFlow,
   Controls,
   Background,
-  useNodesState,
-  useEdgesState,
   addEdge,
+  applyNodeChanges,
+  applyEdgeChanges,
   useReactFlow,
   MarkerType,
   BackgroundVariant,
@@ -15,12 +15,17 @@ import {
   type ReactFlowInstance,
   type Node,
   type Edge,
+  type OnNodesChange,
+  type OnEdgesChange,
   type OnConnect,
 } from "@xyflow/react";
 import Dagre, { type GraphLabel } from "@dagrejs/dagre";
 
 import "@xyflow/react/dist/style.css";
 import styles from "./Graph.module.css";
+
+import { IoIosGitNetwork } from "react-icons/io";
+import { WiCloudRefresh } from "react-icons/wi";
 
 import {
   showErrorToastNotification,
@@ -77,20 +82,31 @@ const proOptions: ProOptions = { hideAttribution: true };
 const Graph = () => {
   const refreshAuth = useContext(RefreshAuthContext);
   const flowInstance = useReactFlow();
-  const [playlistNodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [linkEdges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [playlistNodes, setPlaylistNodes] = useState<Node[]>(initialNodes);
+  const [linkEdges, setLinkEdges] = useState<Edge[]>(initialEdges);
 
-  const onFlowInit = (instance: ReactFlowInstance) => {
+  const onFlowInit = (_instance: ReactFlowInstance) => {
     console.debug("flow loaded");
   };
 
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => setPlaylistNodes((nds) => applyNodeChanges(changes, nds)),
+    [setPlaylistNodes]
+  );
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes) => setLinkEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setLinkEdges]
+  );
+
   const onConnect: OnConnect = useCallback(
-    (params) => {
-      setEdges((eds) => addEdge(params, eds));
-      console.debug("new connection");
-      console.debug(params);
+    (connection) => {
+      setLinkEdges((eds) => addEdge(connection, eds));
+      console.debug(
+        `new connection: ${connection.source} -> ${connection.target}`
+      );
+      // call API to create link
     },
-    [setEdges]
+    [setLinkEdges]
   );
 
   type getLayoutedElementsOpts = {
@@ -137,7 +153,7 @@ const Graph = () => {
       edges: [],
     };
 
-    finalLayout.edges = edges;
+    finalLayout.edges = [...edges];
     finalLayout.nodes.push(
       ...connectedNodes.map((node) => {
         const position = g.node(node.id);
@@ -176,68 +192,83 @@ const Graph = () => {
       direction,
     });
 
-    setNodes([...layouted.nodes]);
-    setEdges([...layouted.edges]);
+    setPlaylistNodes([...layouted.nodes]);
+    setLinkEdges([...layouted.edges]);
 
     setTimeout(flowInstance.fitView);
     console.debug("layout applied");
   };
 
-  useEffect(() => {
-    const fetchGraph = async () => {
-      const resp = await apiFetchGraph();
-      if (resp === undefined) {
-        showErrorToastNotification("Please try again after sometime");
-        return;
-      }
-      if (resp.status === 200) {
-        // place playlist nodes
-        setNodes(
-          resp.data.playlists?.map((pl, idx) => {
-            return {
-              id: `${pl.playlistID}`,
-              position: {
-                x:
-                  nodeOffsets.unconnected.origin.x +
-                  Math.floor(idx / 15) * nodeOffsets.unconnected.scaling.x,
-                y:
-                  nodeOffsets.unconnected.origin.y +
-                  Math.floor(idx % 15) * nodeOffsets.unconnected.scaling.y,
+  const fetchGraph = useCallback(async () => {
+    const resp = await apiFetchGraph();
+    if (resp === undefined) {
+      showErrorToastNotification("Please try again after sometime");
+      return;
+    }
+    if (resp.status === 200) {
+      console.debug(
+        `graph fetched with ${resp.data.playlists?.length} nodes and ${resp.data.links?.length} edges`
+      );
+      // place playlist nodes
+      setPlaylistNodes(
+        resp.data.playlists?.map((pl, idx) => {
+          return {
+            id: `${pl.playlistID}`,
+            position: {
+              x:
+                nodeOffsets.unconnected.origin.x +
+                Math.floor(idx / 15) * nodeOffsets.unconnected.scaling.x,
+              y:
+                nodeOffsets.unconnected.origin.y +
+                Math.floor(idx % 15) * nodeOffsets.unconnected.scaling.y,
+            },
+            data: {
+              label: pl.playlistName,
+              metadata: {
+                pl,
               },
-              data: {
-                label: pl.playlistName,
-                metadata: {
-                  pl,
-                },
-              },
-            };
-          }) ?? []
-        );
-        // connect links
-        setEdges(
-          resp.data.links?.map((link, idx) => {
-            return {
-              id: `${idx}`,
-              source: link.from,
-              target: link.to,
-            };
-          }) ?? []
-        );
-        showInfoToastNotification("Graph updated.");
-        return;
-      }
-      if (resp.status >= 500) {
-        showErrorToastNotification(resp.data.message);
-        return;
-      }
-      if (resp.status === 401) {
-        refreshAuth();
-      }
+            },
+          };
+        }) ?? []
+      );
+      // connect links
+      setLinkEdges(
+        resp.data.links?.map((link, idx) => {
+          return {
+            id: `${idx}`,
+            source: link.from,
+            target: link.to,
+          };
+        }) ?? []
+      );
+      showInfoToastNotification("Graph updated.");
+      return;
+    }
+    if (resp.status >= 500) {
       showErrorToastNotification(resp.data.message);
       return;
-    };
+    }
+    if (resp.status === 401) {
+      await refreshAuth();
+    }
+    showErrorToastNotification(resp.data.message);
+    return;
+  }, [refreshAuth]);
+
+  const onArrange = () => {
+    arrangeLayout("TB");
+  };
+
+  const onRefresh = async () => {
+    await fetchGraph();
+    arrangeLayout("TB");
+  };
+
+  useEffect(() => {
     fetchGraph();
-  }, [refreshAuth, setEdges, setNodes]);
+    // TODO: how to invoke async and sync fns in order correctly inside useEffect?
+    // onRefresh();
+  }, [fetchGraph]);
 
   return (
     <div className={styles.graph_wrapper}>
@@ -262,7 +293,14 @@ const Graph = () => {
         {/* </Panel> */}
       </ReactFlow>
       <div className={styles.operations_wrapper}>
-        <Button onClickMethod={() => arrangeLayout("TB")}>Arrange</Button>
+        <Button onClickMethod={onRefresh}>
+          <WiCloudRefresh size={36} />
+          Refresh
+        </Button>
+        <Button onClickMethod={onArrange}>
+          <IoIosGitNetwork size={36} />
+          Arrange
+        </Button>
       </div>
     </div>
   );
