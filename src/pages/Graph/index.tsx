@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   ReactFlow,
   Controls,
+  MiniMap,
   Background,
   addEdge,
   applyNodeChanges,
@@ -18,6 +19,8 @@ import {
   type OnNodesChange,
   type OnEdgesChange,
   type OnConnect,
+  type OnDelete,
+  type OnBeforeDelete,
 } from "@xyflow/react";
 import Dagre, { type GraphLabel } from "@dagrejs/dagre";
 
@@ -26,6 +29,7 @@ import styles from "./Graph.module.css";
 
 import { IoIosGitNetwork } from "react-icons/io";
 import { WiCloudRefresh } from "react-icons/wi";
+import { MdOutlineLock, MdOutlineLockOpen } from "react-icons/md";
 
 import {
   showErrorToastNotification,
@@ -37,8 +41,8 @@ import { apiFetchGraph } from "../../api/operations";
 import { RefreshAuthContext } from "../../App";
 import Button from "../../components/Button";
 
-const initialNodes: any[] = [];
-const initialEdges: any[] = [];
+const initialNodes: Node[] = [];
+const initialEdges: Edge[] = [];
 
 const nodeOffsets = {
   connected: {
@@ -63,6 +67,18 @@ const nodeOffsets = {
   },
 };
 
+interface Interactive {
+  ndDrag: boolean;
+  ndConn: boolean;
+  elsSel: boolean;
+}
+
+const initialInteractive: Interactive = {
+  ndDrag: true,
+  ndConn: true,
+  elsSel: true,
+};
+
 const edgeOptions: DefaultEdgeOptions = {
   animated: true,
   style: {
@@ -72,8 +88,9 @@ const edgeOptions: DefaultEdgeOptions = {
   markerEnd: {
     type: MarkerType.ArrowClosed,
     color: "white",
-    width: 40,
-    height: 40,
+    width: 16,
+    height: 16,
+    orient: "auto",
   },
 };
 
@@ -84,11 +101,31 @@ const Graph = () => {
   const flowInstance = useReactFlow();
   const [playlistNodes, setPlaylistNodes] = useState<Node[]>(initialNodes);
   const [linkEdges, setLinkEdges] = useState<Edge[]>(initialEdges);
+  const [interactive, setInteractive] =
+    useState<Interactive>(initialInteractive);
 
   const onFlowInit = (_instance: ReactFlowInstance) => {
     console.debug("flow loaded");
   };
 
+  const onFlowBeforeDelete: OnBeforeDelete = useCallback(
+    async ({ nodes, edges }) => {
+      // can't delete playlists
+      if (nodes.length > 0) {
+        showErrorToastNotification("Can't delete playlists!");
+        return false;
+      }
+      return { nodes, edges };
+    },
+    []
+  );
+
+  const onFlowAfterDelete: OnDelete = useCallback(({ nodes, edges }) => {
+    console.debug("deleted edges");
+    console.debug(edges);
+  }, []);
+
+  // base event handling
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setPlaylistNodes((nds) => applyNodeChanges(changes, nds)),
     [setPlaylistNodes]
@@ -121,9 +158,9 @@ const Graph = () => {
     g.setDefaultEdgeLabel(() => ({}));
     g.setGraph({
       rankdir: options.direction,
-      nodesep: 200,
-      edgesep: 200,
-      ranksep: 200,
+      nodesep: 100,
+      edgesep: 100,
+      ranksep: 100,
     });
 
     edges.forEach((edge) => g.setEdge(edge.source, edge.target));
@@ -235,7 +272,7 @@ const Graph = () => {
       setLinkEdges(
         resp.data.links?.map((link, idx) => {
           return {
-            id: `${idx}`,
+            id: `${link.from}->${link.to}`,
             source: link.from,
             target: link.to,
           };
@@ -270,27 +307,46 @@ const Graph = () => {
     // onRefresh();
   }, [fetchGraph]);
 
+  const toggleInteractive = () => {
+    setInteractive({
+      ndDrag: !interactive.ndDrag,
+      ndConn: !interactive.ndConn,
+      elsSel: !interactive.elsSel,
+    });
+  };
+
+  const isInteractive = () => {
+    return interactive.ndDrag && interactive.ndConn && interactive.elsSel;
+  };
+
   return (
     <div className={styles.graph_wrapper}>
       <ReactFlow
         nodes={playlistNodes}
         edges={linkEdges}
         defaultEdgeOptions={edgeOptions}
-        connectionLineType={ConnectionLineType.SmoothStep}
-        fitView
         proOptions={proOptions}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        connectOnClick={false}
+        fitView
         colorMode={"light"}
+        edgesReconnectable={false}
+        nodesFocusable={false}
+        nodesDraggable={interactive.ndDrag}
+        nodesConnectable={interactive.ndConn}
+        elementsSelectable={interactive.elsSel}
+        deleteKeyCode={["Delete", "Backspace"]}
+        multiSelectionKeyCode={null}
         onInit={onFlowInit}
+        onBeforeDelete={onFlowBeforeDelete}
+        onDelete={onFlowAfterDelete}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
       >
-        <Controls />
+        <Controls onInteractiveChange={toggleInteractive} />
+        <MiniMap pannable zoomable />
         <Background variant={BackgroundVariant.Dots} gap={36} size={3} />
-        {/* <Panel position="top-right"> */}
-        {/* <button onClick={() => arrangeLayout('TB')}>Arrange vertically</button> */}
-        {/* <button onClick={() => arrangeLayout('LR')}>Arrange horizontally</button> */}
-        {/* </Panel> */}
       </ReactFlow>
       <div className={styles.operations_wrapper}>
         <Button onClickMethod={onRefresh}>
@@ -300,6 +356,14 @@ const Graph = () => {
         <Button onClickMethod={onArrange}>
           <IoIosGitNetwork size={36} />
           Arrange
+        </Button>
+        <Button onClickMethod={toggleInteractive}>
+          {isInteractive() ? (
+            <MdOutlineLock size={36} />
+          ) : (
+            <MdOutlineLockOpen size={36} />
+          )}
+          {isInteractive() ? "Lock" : "Unlock"}
         </Button>
       </div>
     </div>
