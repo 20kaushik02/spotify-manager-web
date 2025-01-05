@@ -1,8 +1,8 @@
 import { AxiosResponse } from "axios";
-import { apiRespBase, axiosInstance } from "./axiosInstance";
-import { opFetchGraphURL } from "./paths";
+import { apiRespBaseType, axiosInstance } from "./axiosInstance";
+import { opFetchGraphURL, opUpdateUserDataURL } from "./paths";
 
-interface fetchGraphDataType extends apiRespBase {
+interface fetchGraphDataType extends apiRespBaseType {
   playlists?: {
     playlistID: string;
     playlistName: string;
@@ -13,11 +13,26 @@ interface fetchGraphDataType extends apiRespBase {
   }[];
 }
 
+interface updateUserDataType extends apiRespBaseType {
+  removedLinks: boolean;
+}
+
 export const apiFetchGraph = async (): Promise<
   AxiosResponse<fetchGraphDataType, any>
 > => {
   try {
     const response = await axiosInstance.get(opFetchGraphURL);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const apiUpdateUserData = async (): Promise<
+  AxiosResponse<updateUserDataType, any>
+> => {
+  try {
+    const response = await axiosInstance.put(opUpdateUserDataURL);
     return response;
   } catch (error: any) {
     return error.response;

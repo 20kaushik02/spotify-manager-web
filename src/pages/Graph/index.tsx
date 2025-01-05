@@ -22,7 +22,7 @@ import {
   type OnDelete,
   type OnBeforeDelete,
 } from "@xyflow/react";
-import Dagre, { type GraphLabel } from "@dagrejs/dagre";
+import Dagre from "@dagrejs/dagre";
 
 import "@xyflow/react/dist/style.css";
 import styles from "./Graph.module.css";
@@ -30,16 +30,19 @@ import styles from "./Graph.module.css";
 import { IoIosGitNetwork } from "react-icons/io";
 import { WiCloudRefresh } from "react-icons/wi";
 import { MdOutlineLock, MdOutlineLockOpen } from "react-icons/md";
+import { AiFillSpotify } from "react-icons/ai";
 
 import {
   showErrorToastNotification,
   showInfoToastNotification,
+  showWarnToastNotification,
 } from "../../components/ToastNotification";
 
-import { apiFetchGraph } from "../../api/operations";
+import { apiFetchGraph, apiUpdateUserData } from "../../api/operations";
 
 import { RefreshAuthContext } from "../../App";
 import Button from "../../components/Button";
+import APIWrapper from "../../components/APIWrapper";
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -67,11 +70,13 @@ const nodeOffsets = {
   },
 };
 
-interface Interactive {
+type Interactive = {
   ndDrag: boolean;
   ndConn: boolean;
   elsSel: boolean;
-}
+};
+
+type rankdirType = "TB" | "BT" | "LR" | "RL";
 
 const initialInteractive: Interactive = {
   ndDrag: true,
@@ -147,12 +152,12 @@ const Graph = () => {
   );
 
   type getLayoutedElementsOpts = {
-    direction: GraphLabel["rankdir"];
+    direction: rankdirType;
   };
   const getLayoutedElements = (
     nodes: Node[],
     edges: Edge[],
-    options: getLayoutedElementsOpts = { direction: "TB" }
+    options: getLayoutedElementsOpts
   ) => {
     const g = new Dagre.graphlib.Graph();
     g.setDefaultEdgeLabel(() => ({}));
@@ -224,7 +229,7 @@ const Graph = () => {
     return finalLayout;
   };
 
-  const arrangeLayout = (direction: GraphLabel["rankdir"]) => {
+  const arrangeLayout = (direction: rankdirType) => {
     const layouted = getLayoutedElements(playlistNodes, linkEdges, {
       direction,
     });
@@ -237,66 +242,59 @@ const Graph = () => {
   };
 
   const fetchGraph = useCallback(async () => {
-    const resp = await apiFetchGraph();
-    if (resp === undefined) {
-      showErrorToastNotification("Please try again after sometime");
-      return;
-    }
-    if (resp.status === 200) {
-      console.debug(
-        `graph fetched with ${resp.data.playlists?.length} nodes and ${resp.data.links?.length} edges`
-      );
-      // place playlist nodes
-      setPlaylistNodes(
-        resp.data.playlists?.map((pl, idx) => {
-          return {
-            id: `${pl.playlistID}`,
-            position: {
-              x:
-                nodeOffsets.unconnected.origin.x +
-                Math.floor(idx / 15) * nodeOffsets.unconnected.scaling.x,
-              y:
-                nodeOffsets.unconnected.origin.y +
-                Math.floor(idx % 15) * nodeOffsets.unconnected.scaling.y,
+    const resp = await APIWrapper({ apiFn: apiFetchGraph, refreshAuth });
+    console.debug(
+      `graph fetched with ${resp?.data.playlists?.length} nodes and ${resp?.data.links?.length} edges`
+    );
+    // place playlist nodes
+    setPlaylistNodes(
+      resp?.data.playlists?.map((pl, idx) => {
+        return {
+          id: `${pl.playlistID}`,
+          position: {
+            x:
+              nodeOffsets.unconnected.origin.x +
+              Math.floor(idx / 15) * nodeOffsets.unconnected.scaling.x,
+            y:
+              nodeOffsets.unconnected.origin.y +
+              Math.floor(idx % 15) * nodeOffsets.unconnected.scaling.y,
+          },
+          data: {
+            label: pl.playlistName,
+            metadata: {
+              pl,
             },
-            data: {
-              label: pl.playlistName,
-              metadata: {
-                pl,
-              },
-            },
-          };
-        }) ?? []
-      );
-      // connect links
-      setLinkEdges(
-        resp.data.links?.map((link, idx) => {
-          return {
-            id: `${link.from}->${link.to}`,
-            source: link.from,
-            target: link.to,
-          };
-        }) ?? []
-      );
-      showInfoToastNotification("Graph updated.");
-      return;
-    }
-    if (resp.status >= 500) {
-      showErrorToastNotification(resp.data.message);
-      return;
-    }
-    if (resp.status === 401) {
-      await refreshAuth();
-    }
-    showErrorToastNotification(resp.data.message);
-    return;
+          },
+        };
+      }) ?? []
+    );
+    // connect links
+    setLinkEdges(
+      resp?.data.links?.map((link, idx) => {
+        return {
+          id: `${link.from}->${link.to}`,
+          source: link.from,
+          target: link.to,
+        };
+      }) ?? []
+    );
+    showInfoToastNotification("Graph updated.");
   }, [refreshAuth]);
 
-  const onArrange = () => {
-    arrangeLayout("TB");
+  const updateUserData = async () => {
+    const resp = await APIWrapper({
+      apiFn: apiUpdateUserData,
+      refreshAuth,
+    });
+    showInfoToastNotification("Spotify synced.");
+    if (resp?.data.removedLinks)
+      showWarnToastNotification(
+        "Some links with deleted playlists were removed."
+      );
+    await refreshGraph();
   };
 
-  const onRefresh = async () => {
+  const refreshGraph = async () => {
     await fetchGraph();
     arrangeLayout("TB");
   };
@@ -304,19 +302,30 @@ const Graph = () => {
   useEffect(() => {
     fetchGraph();
     // TODO: how to invoke async and sync fns in order correctly inside useEffect?
-    // onRefresh();
+    // refreshGraph();
   }, [fetchGraph]);
 
-  const toggleInteractive = () => {
+  const disableInteractive = () => {
     setInteractive({
-      ndDrag: !interactive.ndDrag,
-      ndConn: !interactive.ndConn,
-      elsSel: !interactive.elsSel,
+      ndDrag: false,
+      ndConn: false,
+      elsSel: false,
+    });
+  };
+  const enableInteractive = () => {
+    setInteractive({
+      ndDrag: true,
+      ndConn: true,
+      elsSel: true,
     });
   };
 
   const isInteractive = () => {
-    return interactive.ndDrag && interactive.ndConn && interactive.elsSel;
+    return interactive.ndDrag || interactive.ndConn || interactive.elsSel;
+  };
+
+  const toggleInteractive = () => {
+    isInteractive() ? disableInteractive() : enableInteractive();
   };
 
   return (
@@ -349,11 +358,11 @@ const Graph = () => {
         <Background variant={BackgroundVariant.Dots} gap={36} size={3} />
       </ReactFlow>
       <div className={styles.operations_wrapper}>
-        <Button onClickMethod={onRefresh}>
+        <Button onClickMethod={refreshGraph}>
           <WiCloudRefresh size={36} />
-          Refresh
+          Refresh Graph
         </Button>
-        <Button onClickMethod={onArrange}>
+        <Button onClickMethod={() => arrangeLayout("TB")}>
           <IoIosGitNetwork size={36} />
           Arrange
         </Button>
@@ -364,6 +373,14 @@ const Graph = () => {
             <MdOutlineLockOpen size={36} />
           )}
           {isInteractive() ? "Lock" : "Unlock"}
+        </Button>
+        <hr className={styles.divider} />
+        <Button onClickMethod={updateUserData}>
+          <span className={styles.icons}>
+            <WiCloudRefresh size={36} />
+            <AiFillSpotify size={36} />
+          </span>
+          Sync Spotify
         </Button>
       </div>
     </div>

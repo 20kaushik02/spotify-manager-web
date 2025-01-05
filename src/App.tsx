@@ -27,7 +27,7 @@ import { ReactFlowProvider } from "@xyflow/react";
 // Contexts
 export const WidthContext = createContext(0);
 export const AuthContext = createContext(false);
-export const RefreshAuthContext = createContext<any>(null);
+export const RefreshAuthContext = createContext(async () => false);
 
 function App() {
   // States
@@ -123,9 +123,8 @@ function App() {
               <ToastContainer
                 position={"bottom-center"}
                 theme={"dark"}
-                stacked
-                newestOnTop
                 draggable
+                closeOnClick
               />
             </div>
           </ReactFlowProvider>

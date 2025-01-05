@@ -1,9 +1,9 @@
 import { AxiosResponse } from "axios";
-import { apiRespBase, axiosInstance } from "./axiosInstance";
+import { apiRespBaseType, axiosInstance } from "./axiosInstance";
 import { authHealthCheckURL, authRefreshURL } from "./paths";
 
 export const apiAuthCheck = async (): Promise<
-  AxiosResponse<apiRespBase, any>
+  AxiosResponse<apiRespBaseType, any>
 > => {
   try {
     const response = await axiosInstance.get(authHealthCheckURL);
@@ -14,7 +14,7 @@ export const apiAuthCheck = async (): Promise<
 };
 
 export const apiAuthRefresh = async (): Promise<
-  AxiosResponse<apiRespBase, any>
+  AxiosResponse<apiRespBaseType, any>
 > => {
   try {
     const response = await axiosInstance.get(authRefreshURL);

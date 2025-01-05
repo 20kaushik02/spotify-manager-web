@@ -11,8 +11,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--mb-3);
+  gap: var(--mb-1);
   height: 100vh;
   width: 10vw;
   padding: var(--mb-3);
+}
+
+.operations_wrapper .icons {
+  display: flex;
+  flex-direction: row;
+}
+
+.divider {
+  display: block;
+  height: 1px;
+  width: 100%;
+  margin: var(--mb-2) auto;
+  border-top: 1px solid white;
 }

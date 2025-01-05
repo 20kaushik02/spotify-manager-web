@@ -6,11 +6,11 @@ export const axiosInstance = axios.create({
   withCredentials: true,
   timeout: 20000,
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   },
 });
 
-export interface apiRespBase {
-  message?: string,
-  errors?: any[],
-};
+export interface apiRespBaseType {
+  message?: string;
+  errors?: any[];
+}

@@ -8,6 +8,6 @@
   cursor: pointer;
   text-decoration: none;
   color: var(--text);
-  box-shadow: 8px 8px var(--bg);
+  box-shadow: 4px 4px var(--bg);
   background-color: var(--bgLinkInactive);
 }
