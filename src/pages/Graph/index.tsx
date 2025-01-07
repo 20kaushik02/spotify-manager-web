@@ -35,10 +35,16 @@ import { AiFillSpotify } from "react-icons/ai";
 import {
   showErrorToastNotification,
   showInfoToastNotification,
+  showSuccessToastNotification,
   showWarnToastNotification,
 } from "../../components/ToastNotification";
 
-import { apiFetchGraph, apiUpdateUserData } from "../../api/operations";
+import {
+  apiCreateLink,
+  apiDeleteLink,
+  apiFetchGraph,
+  apiUpdateUserData,
+} from "../../api/operations";
 
 import { RefreshAuthContext } from "../../App";
 import Button from "../../components/Button";
@@ -125,10 +131,26 @@ const Graph = () => {
     []
   );
 
-  const onFlowAfterDelete: OnDelete = useCallback(({ nodes, edges }) => {
-    console.debug("deleted edges");
-    console.debug(edges);
-  }, []);
+  const onFlowAfterDelete: OnDelete = useCallback(
+    async ({ nodes, edges }) => {
+      console.debug(
+        `deleted connection: ${edges[0].source} -> ${edges[0].target}`
+      );
+      // call API to delete link
+      const spotifyPlaylistLinkPrefix = "https://open.spotify.com/playlist/";
+      const resp = await APIWrapper({
+        apiFn: apiDeleteLink,
+        data: {
+          from: spotifyPlaylistLinkPrefix + edges[0].source,
+          to: spotifyPlaylistLinkPrefix + edges[0].target,
+        },
+        refreshAuth,
+      });
+      if (resp?.status === 200)
+        showSuccessToastNotification(resp?.data.message);
+    },
+    [refreshAuth]
+  );
 
   // base event handling
   const onNodesChange: OnNodesChange = useCallback(
@@ -141,14 +163,25 @@ const Graph = () => {
   );
 
   const onConnect: OnConnect = useCallback(
-    (connection) => {
+    async (connection) => {
       setLinkEdges((eds) => addEdge(connection, eds));
       console.debug(
         `new connection: ${connection.source} -> ${connection.target}`
       );
       // call API to create link
+      const spotifyPlaylistLinkPrefix = "https://open.spotify.com/playlist/";
+      const resp = await APIWrapper({
+        apiFn: apiCreateLink,
+        data: {
+          from: spotifyPlaylistLinkPrefix + connection.source,
+          to: spotifyPlaylistLinkPrefix + connection.target,
+        },
+        refreshAuth,
+      });
+      if (resp?.status === 201)
+        showSuccessToastNotification(resp?.data.message);
     },
-    [setLinkEdges]
+    [setLinkEdges, refreshAuth]
   );
 
   type getLayoutedElementsOpts = {

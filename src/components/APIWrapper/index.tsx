@@ -35,7 +35,7 @@ const APIWrapper = async <T extends apiRespBaseType>({
 
     if (apiResp === undefined) {
       showErrorToastNotification("Please try again after sometime");
-    } else if (apiResp.status === 200) {
+    } else if (apiResp.status >= 200 && apiResp.status < 300) {
       return apiResp;
     } else if (apiResp.status === 401) {
       showWarnToastNotification("Session expired, refreshing...");
@@ -43,6 +43,9 @@ const APIWrapper = async <T extends apiRespBaseType>({
         showErrorToastNotification("Session invalid.");
         return;
       }
+    } else if (apiResp.status >= 400 && apiResp.status < 500) {
+      showErrorToastNotification(apiResp.data.message);
+      return; // no retry on 4XX
     } else {
       showErrorToastNotification(apiResp.data.message);
     }

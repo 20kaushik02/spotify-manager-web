@@ -8,3 +8,5 @@ export const authRefreshURL = "api/auth/refresh";
 
 export const opFetchGraphURL = "api/operations/fetch";
 export const opUpdateUserDataURL = "api/operations/update";
+export const opCreateLinkURL = "api/operations/link";
+export const opDeleteLinkURL = opCreateLinkURL;

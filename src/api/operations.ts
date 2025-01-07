@@ -1,6 +1,11 @@
 import { AxiosResponse } from "axios";
 import { apiRespBaseType, axiosInstance } from "./axiosInstance";
-import { opFetchGraphURL, opUpdateUserDataURL } from "./paths";
+import {
+  opCreateLinkURL,
+  opDeleteLinkURL,
+  opFetchGraphURL,
+  opUpdateUserDataURL,
+} from "./paths";
 
 interface fetchGraphDataType extends apiRespBaseType {
   playlists?: {
@@ -16,6 +21,13 @@ interface fetchGraphDataType extends apiRespBaseType {
 interface updateUserDataType extends apiRespBaseType {
   removedLinks: boolean;
 }
+
+type createLinkBodyType = {
+  from: string; // playlistID
+  to: string; // playlistID
+};
+
+type deleteLinkBodyType = createLinkBodyType;
 
 export const apiFetchGraph = async (): Promise<
   AxiosResponse<fetchGraphDataType, any>
@@ -33,6 +45,28 @@ export const apiUpdateUserData = async (): Promise<
 > => {
   try {
     const response = await axiosInstance.put(opUpdateUserDataURL);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const apiCreateLink = async (
+  data: createLinkBodyType
+): Promise<AxiosResponse<apiRespBaseType, any>> => {
+  try {
+    const response = await axiosInstance.post(opCreateLinkURL, data);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const apiDeleteLink = async (
+  data: deleteLinkBodyType
+): Promise<AxiosResponse<apiRespBaseType, any>> => {
+  try {
+    const response = await axiosInstance.delete(opDeleteLinkURL, { data });
     return response;
   } catch (error: any) {
     return error.response;
