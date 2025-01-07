@@ -30,29 +30,29 @@ const APIWrapper = async <T extends apiRespBaseType>({
   data,
   config,
 }: APIWrapperProps<T>) => {
+  let apiResp;
   for (let i = 1; i <= maxRetries + 1; i++) {
-    const apiResp = await apiFn(data, config);
+    apiResp = await apiFn(data, config);
 
     if (apiResp === undefined) {
       showErrorToastNotification("Please try again after sometime");
     } else if (apiResp.status >= 200 && apiResp.status < 300) {
-      return apiResp;
+      break;
     } else if (apiResp.status === 401) {
       showWarnToastNotification("Session expired, refreshing...");
       if (!(await refreshAuth())) {
         showErrorToastNotification("Session invalid.");
-        return;
+        break;
       }
     } else if (apiResp.status >= 400 && apiResp.status < 500) {
       showErrorToastNotification(apiResp.data.message);
-      return; // no retry on 4XX
+      break; // no retry on 4XX
     } else {
       showErrorToastNotification(apiResp.data.message);
     }
     await sleep(i * i * 1000);
   }
-  showErrorToastNotification("Please try again after sometime");
-  return;
+  return apiResp;
 };
 
 export default APIWrapper;

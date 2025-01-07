@@ -164,7 +164,6 @@ const Graph = () => {
 
   const onConnect: OnConnect = useCallback(
     async (connection) => {
-      setLinkEdges((eds) => addEdge(connection, eds));
       console.debug(
         `new connection: ${connection.source} -> ${connection.target}`
       );
@@ -178,8 +177,10 @@ const Graph = () => {
         },
         refreshAuth,
       });
-      if (resp?.status === 201)
+      if (resp?.status === 201) {
         showSuccessToastNotification(resp?.data.message);
+        setLinkEdges((eds) => addEdge(connection, eds));
+      }
     },
     [setLinkEdges, refreshAuth]
   );
