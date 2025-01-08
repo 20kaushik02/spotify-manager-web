@@ -1,9 +1,11 @@
 import { AxiosResponse } from "axios";
 import { apiRespBaseType, axiosInstance } from "./axiosInstance";
 import {
+  opBackfillLinkURL,
   opCreateLinkURL,
   opDeleteLinkURL,
   opFetchGraphURL,
+  opPruneLinkURL,
   opUpdateUserDataURL,
 } from "./paths";
 
@@ -27,7 +29,25 @@ type createLinkBodyType = {
   to: string; // playlistID
 };
 
+interface createLinkDataType extends apiRespBaseType {}
+
 type deleteLinkBodyType = createLinkBodyType;
+
+interface deleteLinkDataType extends apiRespBaseType {}
+
+type backfillLinkBodyType = createLinkBodyType;
+
+interface backfillLinkDataType extends apiRespBaseType {
+  added?: number;
+  local?: number;
+}
+
+type pruneLinkBodyType = createLinkBodyType;
+
+interface pruneLinkDataType extends apiRespBaseType {
+  added?: number;
+  local?: number;
+}
 
 export const apiFetchGraph = async (): Promise<
   AxiosResponse<fetchGraphDataType, any>
@@ -53,7 +73,7 @@ export const apiUpdateUserData = async (): Promise<
 
 export const apiCreateLink = async (
   data: createLinkBodyType
-): Promise<AxiosResponse<apiRespBaseType, any>> => {
+): Promise<AxiosResponse<createLinkDataType, any>> => {
   try {
     const response = await axiosInstance.post(opCreateLinkURL, data);
     return response;
@@ -64,9 +84,31 @@ export const apiCreateLink = async (
 
 export const apiDeleteLink = async (
   data: deleteLinkBodyType
-): Promise<AxiosResponse<apiRespBaseType, any>> => {
+): Promise<AxiosResponse<deleteLinkDataType, any>> => {
   try {
-    const response = await axiosInstance.delete(opDeleteLinkURL, { data });
+    const response = await axiosInstance.delete(opDeleteLinkURL, { data }); // axios delete method doesn't take body
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const apiBackfillLink = async (
+  data: backfillLinkBodyType
+): Promise<AxiosResponse<backfillLinkDataType, any>> => {
+  try {
+    const response = await axiosInstance.put(opBackfillLinkURL, data);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const apiPruneLink = async (
+  data: pruneLinkBodyType
+): Promise<AxiosResponse<pruneLinkDataType, any>> => {
+  try {
+    const response = await axiosInstance.put(opPruneLinkURL, data);
     return response;
   } catch (error: any) {
     return error.response;

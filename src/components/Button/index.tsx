@@ -3,10 +3,10 @@ import styles from "./Button.module.css";
 
 type ButtonProps = {
   children: React.ReactNode;
-  onClickMethod: () => void;
-}
+  onClickMethod?: () => void;
+};
 
-const Button = ({ children, onClickMethod }: ButtonProps) => {
+const Button = ({ children, onClickMethod = () => {} }: ButtonProps) => {
   const clickHandler = (e: React.MouseEvent) => {
     e.preventDefault();
     onClickMethod();

@@ -13,9 +13,9 @@ import {
   BackgroundVariant,
   type DefaultEdgeOptions,
   type ProOptions,
-  type ReactFlowInstance,
   type Node,
   type Edge,
+  type OnInit,
   type OnNodesChange,
   type OnEdgesChange,
   type OnSelectionChangeFunc,
@@ -31,6 +31,7 @@ import { IoIosGitNetwork } from "react-icons/io";
 import { WiCloudRefresh } from "react-icons/wi";
 import { MdOutlineLock, MdOutlineLockOpen } from "react-icons/md";
 import { AiFillSpotify } from "react-icons/ai";
+import { PiSupersetOf, PiSubsetOf } from "react-icons/pi";
 
 import {
   showErrorToastNotification,
@@ -39,10 +40,13 @@ import {
   showWarnToastNotification,
 } from "../../components/ToastNotification";
 
+import { spotifyPlaylistLinkPrefix } from "../../api/paths";
 import {
+  apiBackfillLink,
   apiCreateLink,
   apiDeleteLink,
   apiFetchGraph,
+  apiPruneLink,
   apiUpdateUserData,
 } from "../../api/operations";
 
@@ -127,10 +131,11 @@ const Graph = () => {
   const flowInstance = useReactFlow();
   const [playlistNodes, setPlaylistNodes] = useState<Node[]>(initialNodes);
   const [linkEdges, setLinkEdges] = useState<Edge[]>(initialEdges);
+  const [selectedEdgeID, setSelectedEdgeID] = useState<Edge["id"]>("");
   const [interactive, setInteractive] =
     useState<Interactive>(initialInteractive);
 
-  const onFlowInit = (_instance: ReactFlowInstance) => {
+  const onFlowInit: OnInit = (_instance) => {
     console.debug("flow loaded");
   };
 
@@ -146,10 +151,11 @@ const Graph = () => {
 
   const onFlowSelectionChange: OnSelectionChangeFunc = useCallback(
     ({ nodes, edges }) => {
-      const newSelectedID = edges[0]?.id ?? "";
+      const selectedID = edges[0]?.id ?? "";
+      setSelectedEdgeID(selectedID);
       setLinkEdges((eds) =>
         eds.map((ed) =>
-          ed.id === newSelectedID
+          ed.id === selectedID
             ? { ...ed, ...selectedEdgeOptions }
             : { ...ed, ...edgeOptions }
         )
@@ -197,7 +203,6 @@ const Graph = () => {
         `deleted connection: ${edges[0].source} -> ${edges[0].target}`
       );
       // call API to delete link
-      const spotifyPlaylistLinkPrefix = "https://open.spotify.com/playlist/";
       const resp = await APIWrapper({
         apiFn: apiDeleteLink,
         data: {
@@ -214,6 +219,54 @@ const Graph = () => {
     },
     [refreshAuth]
   );
+
+  // backfill link
+  const backfillLink = async () => {
+    if (selectedEdgeID === "") {
+      showWarnToastNotification("Select an edge!");
+      return;
+    }
+    const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
+
+    const resp = await APIWrapper({
+      apiFn: apiBackfillLink,
+      data: {
+        from: spotifyPlaylistLinkPrefix + selectedEdge.source,
+        to: spotifyPlaylistLinkPrefix + selectedEdge.target,
+      },
+      refreshAuth,
+    });
+
+    if (resp?.status === 200) {
+      showSuccessToastNotification(resp?.data.message);
+      return;
+    }
+    return;
+  };
+
+  // prune link
+  const pruneLink = async () => {
+    if (selectedEdgeID === "") {
+      showWarnToastNotification("Select an edge!");
+      return;
+    }
+    const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
+
+    const resp = await APIWrapper({
+      apiFn: apiPruneLink,
+      data: {
+        from: spotifyPlaylistLinkPrefix + selectedEdge.source,
+        to: spotifyPlaylistLinkPrefix + selectedEdge.target,
+      },
+      refreshAuth,
+    });
+
+    if (resp?.status === 200) {
+      showSuccessToastNotification(resp?.data.message);
+      return;
+    }
+    return;
+  };
 
   type getLayoutedElementsOpts = {
     direction: rankdirType;
@@ -405,7 +458,7 @@ const Graph = () => {
         nodesDraggable={interactive.ndDrag}
         nodesConnectable={interactive.ndConn}
         elementsSelectable={interactive.elsSel}
-        deleteKeyCode={["Delete", "Backspace"]}
+        deleteKeyCode={["Delete"]}
         multiSelectionKeyCode={null}
         onInit={onFlowInit}
         onBeforeDelete={onFlowBeforeDelete}
@@ -418,9 +471,13 @@ const Graph = () => {
         <Background variant={BackgroundVariant.Dots} gap={36} size={3} />
       </ReactFlow>
       <div className={`${styles.operations_wrapper} custom_scrollbar`}>
-        <Button onClickMethod={refreshGraph}>
-          <WiCloudRefresh size={36} />
-          Refresh Graph
+        <Button onClickMethod={backfillLink}>
+          <PiSupersetOf size={36} />
+          Backfill Link
+        </Button>
+        <Button onClickMethod={pruneLink}>
+          <PiSubsetOf size={36} />
+          Prune Link
         </Button>
         <Button onClickMethod={() => arrangeLayout("TB")}>
           <IoIosGitNetwork size={36} />
@@ -441,6 +498,10 @@ const Graph = () => {
             <AiFillSpotify size={36} />
           </span>
           Sync Spotify
+        </Button>
+        <Button onClickMethod={refreshGraph}>
+          <WiCloudRefresh size={36} />
+          Refresh Graph
         </Button>
       </div>
     </div>
