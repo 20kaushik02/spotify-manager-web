@@ -271,92 +271,97 @@ const Graph = () => {
   type getLayoutedElementsOpts = {
     direction: rankdirType;
   };
-  const getLayoutedElements = (
-    nodes: Node[],
-    edges: Edge[],
-    options: getLayoutedElementsOpts
-  ) => {
-    const g = new Dagre.graphlib.Graph();
-    g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({
-      rankdir: options.direction,
-      nodesep: 100,
-      edgesep: 100,
-      ranksep: 100,
-    });
-
-    edges.forEach((edge) => g.setEdge(edge.source, edge.target));
-
-    const connectedNodesID = new Set(
-      edges.flatMap((edge) => [edge.source, edge.target])
-    );
-    const connectedNodes = nodes.filter((node) =>
-      connectedNodesID.has(node.id)
-    );
-    const unconnectedNodes = nodes.filter(
-      (node) => !connectedNodesID.has(node.id)
-    );
-
-    nodes.forEach((node) => {
-      g.setNode(node.id, {
-        ...node,
-        width: node.measured?.width ?? 0,
-        height: node.measured?.height ?? 0,
+  const getLayoutedElements = useCallback(
+    (nodes: Node[], edges: Edge[], options: getLayoutedElementsOpts) => {
+      const g = new Dagre.graphlib.Graph();
+      g.setDefaultEdgeLabel(() => ({}));
+      g.setGraph({
+        rankdir: options.direction,
+        nodesep: 100,
+        edgesep: 100,
+        ranksep: 100,
       });
-    });
 
-    Dagre.layout(g);
+      edges.forEach((edge) => g.setEdge(edge.source, edge.target));
 
-    let finalLayout: { nodes: Node[]; edges: Edge[] } = {
-      nodes: [],
-      edges: [],
-    };
+      const connectedNodesID = new Set(
+        edges.flatMap((edge) => [edge.source, edge.target])
+      );
+      const connectedNodes = nodes.filter((node) =>
+        connectedNodesID.has(node.id)
+      );
+      const unconnectedNodes = nodes.filter(
+        (node) => !connectedNodesID.has(node.id)
+      );
 
-    finalLayout.edges = [...edges];
-    finalLayout.nodes.push(
-      ...connectedNodes.map((node) => {
-        const position = g.node(node.id);
-        // We are shifting the dagre node position (anchor=center center) to the top left
-        // so it matches the React Flow node anchor point (top left).
-        const x = position.x - (node.measured?.width ?? 0) / 2;
-        const y = position.y - (node.measured?.height ?? 0) / 2;
+      nodes.forEach((node) => {
+        g.setNode(node.id, {
+          ...node,
+          width: node.measured?.width ?? 0,
+          height: node.measured?.height ?? 0,
+        });
+      });
 
-        return { ...node, position: { x, y } };
-      })
-    );
+      Dagre.layout(g);
 
-    finalLayout.nodes.push(
-      ...unconnectedNodes.map((node, idx) => {
-        const position = {
-          x:
-            nodeOffsets.unconnected.origin.x +
-            Math.floor(idx / 20) * nodeOffsets.unconnected.scaling.x,
-          y:
-            nodeOffsets.unconnected.origin.y +
-            Math.floor(idx % 20) * nodeOffsets.unconnected.scaling.y,
-        };
-        const x = position.x - (node.measured?.width ?? 0) / 2;
-        const y = position.y - (node.measured?.height ?? 0) / 2;
+      let finalLayout: { nodes: Node[]; edges: Edge[] } = {
+        nodes: [],
+        edges: [],
+      };
 
-        return { ...node, position: { x, y } };
-      })
-    );
+      finalLayout.edges = [...edges];
+      finalLayout.nodes.push(
+        ...connectedNodes.map((node) => {
+          const position = g.node(node.id);
+          // We are shifting the dagre node position (anchor=center center) to the top left
+          // so it matches the React Flow node anchor point (top left).
+          const x = position.x - (node.measured?.width ?? 0) / 2;
+          const y = position.y - (node.measured?.height ?? 0) / 2;
 
-    console.debug("layout generated");
-    return finalLayout;
-  };
+          return { ...node, position: { x, y } };
+        })
+      );
 
-  const arrangeLayout = (direction: rankdirType) => {
-    const layouted = getLayoutedElements(playlistNodes, linkEdges, {
-      direction,
-    });
+      finalLayout.nodes.push(
+        ...unconnectedNodes.map((node, idx) => {
+          const position = {
+            x:
+              nodeOffsets.unconnected.origin.x +
+              Math.floor(idx / 20) * nodeOffsets.unconnected.scaling.x,
+            y:
+              nodeOffsets.unconnected.origin.y +
+              Math.floor(idx % 20) * nodeOffsets.unconnected.scaling.y,
+          };
+          const x = position.x - (node.measured?.width ?? 0) / 2;
+          const y = position.y - (node.measured?.height ?? 0) / 2;
 
-    setPlaylistNodes([...layouted.nodes]);
-    setLinkEdges([...layouted.edges]);
+          return { ...node, position: { x, y } };
+        })
+      );
 
-    setTimeout(flowInstance.fitView);
-    console.debug("layout applied");
-  };
+      console.debug("layout generated");
+      return finalLayout;
+    },
+    []
+  );
+
+  const arrangeLayout = useCallback(
+    (direction: rankdirType) => {
+      // TODO: race condition
+      // states not updated in time inside other functions that call this before they call this
+      // fix that
+      const layouted = getLayoutedElements(playlistNodes, linkEdges, {
+        direction,
+      });
+
+      setPlaylistNodes([...layouted.nodes]);
+      setLinkEdges([...layouted.edges]);
+
+      setTimeout(flowInstance.fitView);
+      console.debug("layout applied");
+    },
+    [playlistNodes, linkEdges, flowInstance, getLayoutedElements]
+  );
 
   const fetchGraph = useCallback(async () => {
     const resp = await APIWrapper({ apiFn: apiFetchGraph, refreshAuth });
@@ -364,7 +369,7 @@ const Graph = () => {
       `graph fetched with ${resp?.data.playlists?.length} nodes and ${resp?.data.links?.length} edges`
     );
     // place playlist nodes
-    setPlaylistNodes(
+    const newNodes =
       resp?.data.playlists?.map((pl, idx) => {
         return {
           id: `${pl.playlistID}`,
@@ -383,18 +388,18 @@ const Graph = () => {
             },
           },
         };
-      }) ?? []
-    );
+      }) ?? [];
+    setPlaylistNodes(newNodes);
     // connect links
-    setLinkEdges(
+    const newEdges =
       resp?.data.links?.map((link, idx) => {
         return {
           id: `${link.from}->${link.to}`,
           source: link.from,
           target: link.to,
         };
-      }) ?? []
-    );
+      }) ?? [];
+    setLinkEdges(newEdges);
     showInfoToastNotification("Graph updated.");
   }, [refreshAuth]);
 
@@ -403,7 +408,7 @@ const Graph = () => {
       apiFn: apiUpdateUserData,
       refreshAuth,
     });
-    showInfoToastNotification("Spotify synced.");
+    showInfoToastNotification(resp?.data.message);
     if (resp?.data.removedLinks)
       showWarnToastNotification(
         "Some links with deleted playlists were removed."
@@ -413,7 +418,6 @@ const Graph = () => {
 
   const refreshGraph = async () => {
     await fetchGraph();
-    arrangeLayout("TB");
   };
 
   useEffect(() => {
