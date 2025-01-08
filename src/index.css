@@ -89,3 +89,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* Custom scrollbar */
+.custom_scrollbar::-webkit-scrollbar-track {
+  border-radius: 1rem;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: var(--text);
+}
+
+.custom_scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom_scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 1rem;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: var(--bg);
+}

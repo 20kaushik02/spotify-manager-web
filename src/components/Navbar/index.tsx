@@ -9,7 +9,7 @@ const Navbar = () => {
   const auth = useContext(AuthContext);
 
   return (
-    <nav className={styles.navbar_wrapper}>
+    <nav className={`${styles.navbar_wrapper} custom_scrollbar`}>
       <StyledNavLink path="/" text="About" />
       <StyledNavLink path="/graph" text="Graph" />
       {auth === true ? (

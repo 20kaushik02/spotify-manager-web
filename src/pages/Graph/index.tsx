@@ -7,10 +7,10 @@ import {
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
+  useOnSelectionChange,
   useReactFlow,
   MarkerType,
   BackgroundVariant,
-  ConnectionLineType,
   type DefaultEdgeOptions,
   type ProOptions,
   type ReactFlowInstance,
@@ -18,8 +18,8 @@ import {
   type Edge,
   type OnNodesChange,
   type OnEdgesChange,
+  type OnSelectionChangeFunc,
   type OnConnect,
-  type OnDelete,
   type OnBeforeDelete,
 } from "@xyflow/react";
 import Dagre from "@dagrejs/dagre";
@@ -91,7 +91,7 @@ const initialInteractive: Interactive = {
 };
 
 const edgeOptions: DefaultEdgeOptions = {
-  animated: true,
+  animated: false,
   style: {
     stroke: "white",
     strokeWidth: 2,
@@ -99,6 +99,21 @@ const edgeOptions: DefaultEdgeOptions = {
   markerEnd: {
     type: MarkerType.ArrowClosed,
     color: "white",
+    width: 16,
+    height: 16,
+    orient: "auto",
+  },
+};
+
+const selectedEdgeOptions: DefaultEdgeOptions = {
+  animated: true,
+  style: {
+    stroke: "red",
+    strokeWidth: 2,
+  },
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: "red",
     width: 16,
     height: 16,
     orient: "auto",
@@ -119,39 +134,6 @@ const Graph = () => {
     console.debug("flow loaded");
   };
 
-  const onFlowBeforeDelete: OnBeforeDelete = useCallback(
-    async ({ nodes, edges }) => {
-      // can't delete playlists
-      if (nodes.length > 0) {
-        showErrorToastNotification("Can't delete playlists!");
-        return false;
-      }
-      return { nodes, edges };
-    },
-    []
-  );
-
-  const onFlowAfterDelete: OnDelete = useCallback(
-    async ({ nodes, edges }) => {
-      console.debug(
-        `deleted connection: ${edges[0].source} -> ${edges[0].target}`
-      );
-      // call API to delete link
-      const spotifyPlaylistLinkPrefix = "https://open.spotify.com/playlist/";
-      const resp = await APIWrapper({
-        apiFn: apiDeleteLink,
-        data: {
-          from: spotifyPlaylistLinkPrefix + edges[0].source,
-          to: spotifyPlaylistLinkPrefix + edges[0].target,
-        },
-        refreshAuth,
-      });
-      if (resp?.status === 200)
-        showSuccessToastNotification(resp?.data.message);
-    },
-    [refreshAuth]
-  );
-
   // base event handling
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setPlaylistNodes((nds) => applyNodeChanges(changes, nds)),
@@ -162,7 +144,25 @@ const Graph = () => {
     [setLinkEdges]
   );
 
-  const onConnect: OnConnect = useCallback(
+  const onFlowSelectionChange: OnSelectionChangeFunc = useCallback(
+    ({ nodes, edges }) => {
+      const newSelectedID = edges[0]?.id ?? "";
+      setLinkEdges((eds) =>
+        eds.map((ed) =>
+          ed.id === newSelectedID
+            ? { ...ed, ...selectedEdgeOptions }
+            : { ...ed, ...edgeOptions }
+        )
+      );
+    },
+    [setLinkEdges]
+  );
+  useOnSelectionChange({
+    onChange: onFlowSelectionChange,
+  });
+
+  // new edge
+  const onFlowConnect: OnConnect = useCallback(
     async (connection) => {
       console.debug(
         `new connection: ${connection.source} -> ${connection.target}`
@@ -183,6 +183,36 @@ const Graph = () => {
       }
     },
     [setLinkEdges, refreshAuth]
+  );
+
+  // remove edge
+  const onFlowBeforeDelete: OnBeforeDelete = useCallback(
+    async ({ nodes, edges }) => {
+      // can't delete playlists
+      if (nodes.length > 0) {
+        showErrorToastNotification("Can't delete playlists!");
+        return false;
+      }
+      console.debug(
+        `deleted connection: ${edges[0].source} -> ${edges[0].target}`
+      );
+      // call API to delete link
+      const spotifyPlaylistLinkPrefix = "https://open.spotify.com/playlist/";
+      const resp = await APIWrapper({
+        apiFn: apiDeleteLink,
+        data: {
+          from: spotifyPlaylistLinkPrefix + edges[0].source,
+          to: spotifyPlaylistLinkPrefix + edges[0].target,
+        },
+        refreshAuth,
+      });
+      if (resp?.status === 200) {
+        showSuccessToastNotification(resp?.data.message);
+        return { nodes, edges };
+      }
+      return false;
+    },
+    [refreshAuth]
   );
 
   type getLayoutedElementsOpts = {
@@ -335,8 +365,6 @@ const Graph = () => {
 
   useEffect(() => {
     fetchGraph();
-    // TODO: how to invoke async and sync fns in order correctly inside useEffect?
-    // refreshGraph();
   }, [fetchGraph]);
 
   const disableInteractive = () => {
@@ -369,10 +397,9 @@ const Graph = () => {
         edges={linkEdges}
         defaultEdgeOptions={edgeOptions}
         proOptions={proOptions}
-        connectionLineType={ConnectionLineType.SmoothStep}
-        connectOnClick={false}
         fitView
         colorMode={"light"}
+        elevateEdgesOnSelect
         edgesReconnectable={false}
         nodesFocusable={false}
         nodesDraggable={interactive.ndDrag}
@@ -382,16 +409,15 @@ const Graph = () => {
         multiSelectionKeyCode={null}
         onInit={onFlowInit}
         onBeforeDelete={onFlowBeforeDelete}
-        onDelete={onFlowAfterDelete}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        onConnect={onFlowConnect}
       >
         <Controls onInteractiveChange={toggleInteractive} />
         <MiniMap pannable zoomable />
         <Background variant={BackgroundVariant.Dots} gap={36} size={3} />
       </ReactFlow>
-      <div className={styles.operations_wrapper}>
+      <div className={`${styles.operations_wrapper} custom_scrollbar`}>
         <Button onClickMethod={refreshGraph}>
           <WiCloudRefresh size={36} />
           Refresh Graph

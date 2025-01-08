@@ -1,10 +1,11 @@
 a {
-  padding: var(--mb-3);
+  padding: var(--mb-3) var(--mb-1);
   border-radius: 2%;
   width: 100%;
   cursor: pointer;
   text-decoration: none;
   color: var(--text);
+  text-align: center;
 }
 
 .active_link {
