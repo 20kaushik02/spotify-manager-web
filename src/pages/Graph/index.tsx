@@ -70,8 +70,8 @@ const nodeOffsets = {
   },
   unconnected: {
     origin: {
-      x: 800,
-      y: 0,
+      x: 0,
+      y: 1600,
     },
     scaling: {
       x: 160,
@@ -275,12 +275,7 @@ const Graph = () => {
     (nodes: Node[], edges: Edge[], options: getLayoutedElementsOpts) => {
       const g = new Dagre.graphlib.Graph();
       g.setDefaultEdgeLabel(() => ({}));
-      g.setGraph({
-        rankdir: options.direction,
-        nodesep: 100,
-        edgesep: 100,
-        ranksep: 100,
-      });
+      g.setGraph({ rankdir: options.direction, ranksep: 200 });
 
       edges.forEach((edge) => g.setEdge(edge.source, edge.target));
 
@@ -327,10 +322,10 @@ const Graph = () => {
           const position = {
             x:
               nodeOffsets.unconnected.origin.x +
-              Math.floor(idx / 20) * nodeOffsets.unconnected.scaling.x,
+              Math.floor(idx / 5) * nodeOffsets.unconnected.scaling.x,
             y:
               nodeOffsets.unconnected.origin.y +
-              Math.floor(idx % 20) * nodeOffsets.unconnected.scaling.y,
+              Math.floor(idx % 5) * nodeOffsets.unconnected.scaling.y,
           };
           const x = position.x - (node.measured?.width ?? 0) / 2;
           const y = position.y - (node.measured?.height ?? 0) / 2;
@@ -413,7 +408,6 @@ const Graph = () => {
       showWarnToastNotification(
         "Some links with deleted playlists were removed."
       );
-    await refreshGraph();
   };
 
   const refreshGraph = async () => {
@@ -452,26 +446,34 @@ const Graph = () => {
       <ReactFlow
         nodes={playlistNodes}
         edges={linkEdges}
-        defaultEdgeOptions={edgeOptions}
-        proOptions={proOptions}
-        fitView
-        colorMode={"light"}
-        elevateEdgesOnSelect
-        edgesReconnectable={false}
-        nodesFocusable={false}
-        nodesDraggable={interactive.ndDrag}
-        nodesConnectable={interactive.ndConn}
-        elementsSelectable={interactive.elsSel}
-        deleteKeyCode={["Delete"]}
-        multiSelectionKeyCode={null}
-        onInit={onFlowInit}
-        onBeforeDelete={onFlowBeforeDelete}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onFlowConnect}
+        proOptions={proOptions}
+        colorMode={"light"}
+        fitView
+        minZoom={0.1}
+        maxZoom={10}
+        elevateEdgesOnSelect
+        defaultEdgeOptions={edgeOptions}
+        edgesReconnectable={false}
+        onInit={onFlowInit}
+        onBeforeDelete={onFlowBeforeDelete}
+        nodesDraggable={interactive.ndDrag}
+        nodesConnectable={interactive.ndConn}
+        nodesFocusable={false}
+        elementsSelectable={interactive.elsSel}
+        deleteKeyCode={["Delete"]}
+        multiSelectionKeyCode={null}
       >
         <Controls onInteractiveChange={toggleInteractive} />
-        <MiniMap pannable zoomable />
+        <MiniMap
+          pannable
+          zoomable
+          nodeColor={"pink"}
+          nodeStrokeColor={"blue"}
+          bgColor={"purple"}
+        />
         <Background variant={BackgroundVariant.Dots} gap={36} size={3} />
       </ReactFlow>
       <div className={`${styles.operations_wrapper} custom_scrollbar`}>
