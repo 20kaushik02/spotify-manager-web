@@ -4,6 +4,7 @@ import {
   Controls,
   MiniMap,
   Background,
+  Panel,
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
@@ -53,6 +54,7 @@ import {
 import { RefreshAuthContext } from "../../App";
 import Button from "../../components/Button";
 import APIWrapper from "../../components/APIWrapper";
+import SimpleLoader from "../../components/SimpleLoader";
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -134,6 +136,7 @@ const Graph = () => {
   const [selectedEdgeID, setSelectedEdgeID] = useState<Edge["id"]>("");
   const [interactive, setInteractive] =
     useState<Interactive>(initialInteractive);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onFlowInit: OnInit = (_instance) => {
     console.debug("flow loaded");
@@ -175,6 +178,7 @@ const Graph = () => {
       );
       // call API to create link
       const spotifyPlaylistLinkPrefix = "https://open.spotify.com/playlist/";
+      setLoading(true);
       const resp = await APIWrapper({
         apiFn: apiCreateLink,
         data: {
@@ -183,6 +187,7 @@ const Graph = () => {
         },
         refreshAuth,
       });
+      setLoading(false);
       if (resp?.status === 201) {
         showSuccessToastNotification(resp?.data.message);
         setLinkEdges((eds) => addEdge(connection, eds));
@@ -203,6 +208,7 @@ const Graph = () => {
         `deleted connection: ${edges[0].source} -> ${edges[0].target}`
       );
       // call API to delete link
+      setLoading(true);
       const resp = await APIWrapper({
         apiFn: apiDeleteLink,
         data: {
@@ -211,6 +217,7 @@ const Graph = () => {
         },
         refreshAuth,
       });
+      setLoading(false);
       if (resp?.status === 200) {
         showSuccessToastNotification(resp?.data.message);
         return { nodes, edges };
@@ -228,6 +235,7 @@ const Graph = () => {
     }
     const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
 
+    setLoading(true);
     const resp = await APIWrapper({
       apiFn: apiBackfillLink,
       data: {
@@ -236,6 +244,7 @@ const Graph = () => {
       },
       refreshAuth,
     });
+    setLoading(false);
 
     if (resp?.status === 200) {
       showSuccessToastNotification(resp?.data.message);
@@ -252,6 +261,7 @@ const Graph = () => {
     }
     const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
 
+    setLoading(true);
     const resp = await APIWrapper({
       apiFn: apiPruneLink,
       data: {
@@ -260,6 +270,7 @@ const Graph = () => {
       },
       refreshAuth,
     });
+    setLoading(false);
 
     if (resp?.status === 200) {
       showSuccessToastNotification(resp?.data.message);
@@ -359,7 +370,9 @@ const Graph = () => {
   );
 
   const fetchGraph = useCallback(async () => {
+    setLoading(true);
     const resp = await APIWrapper({ apiFn: apiFetchGraph, refreshAuth });
+    setLoading(false);
     console.debug(
       `graph fetched with ${resp?.data.playlists?.length} nodes and ${resp?.data.links?.length} edges`
     );
@@ -399,10 +412,12 @@ const Graph = () => {
   }, [refreshAuth]);
 
   const updateUserData = async () => {
+    setLoading(true);
     const resp = await APIWrapper({
       apiFn: apiUpdateUserData,
       refreshAuth,
     });
+    setLoading(false);
     showInfoToastNotification(resp?.data.message);
     if (resp?.data.removedLinks)
       showWarnToastNotification(
@@ -442,7 +457,7 @@ const Graph = () => {
   };
 
   return (
-    <div className={styles.graph_wrapper}>
+    <div className={`${styles.graph_wrapper} ${loading && styles.loading}`}>
       <ReactFlow
         nodes={playlistNodes}
         edges={linkEdges}
@@ -452,8 +467,8 @@ const Graph = () => {
         proOptions={proOptions}
         colorMode={"light"}
         fitView
-        minZoom={0.1}
-        maxZoom={10}
+        minZoom={0.05}
+        maxZoom={20}
         elevateEdgesOnSelect
         defaultEdgeOptions={edgeOptions}
         edgesReconnectable={false}
@@ -475,6 +490,7 @@ const Graph = () => {
           bgColor={"purple"}
         />
         <Background variant={BackgroundVariant.Dots} gap={36} size={3} />
+        <Panel position="top-right">{loading && <SimpleLoader />}</Panel>
       </ReactFlow>
       <div className={`${styles.operations_wrapper} custom_scrollbar`}>
         <Button onClickMethod={backfillLink}>

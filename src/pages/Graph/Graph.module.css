@@ -5,6 +5,10 @@
   color: black;
 }
 
+.loading {
+  filter: brightness(70%);
+}
+
 .operations_wrapper {
   display: flex;
   background-color: var(--bgNav);
