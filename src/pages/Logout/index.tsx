@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import styles from "./Logout.module.css";
-import { authLogoutURL } from "../../api/paths";
+import { authLogoutFullURL } from "../../api/paths";
 
 const Logout = () => {
   useEffect(() => {
     const timeoutID = setTimeout(() => {
-      window.open(authLogoutURL, "_self");
+      window.open(authLogoutFullURL, "_self");
     }, 1000);
 
     return () => clearTimeout(timeoutID);
