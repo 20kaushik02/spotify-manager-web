@@ -8,6 +8,7 @@ import PageNotFound from "../pages/PageNotFound";
 import Graph from "../pages/Graph";
 import Login from "../pages/Login";
 import Logout from "../pages/Logout";
+import HowToUse from "../pages/HowToUse";
 
 const AllRoutes = () => {
   return (
@@ -26,6 +27,7 @@ const AllRoutes = () => {
 
       {/* Common routes */}
       <Route path="/" element={<Landing />} />
+      <Route path="/how-to" element={<HowToUse />} />
 
       {/* 404 */}
       <Route path="/page-not-found" element={<PageNotFound />} />

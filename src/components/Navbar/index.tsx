@@ -12,6 +12,7 @@ const Navbar = () => {
     <nav className={`${styles.navbar_wrapper} custom_scrollbar`}>
       <StyledNavLink path="/" text="About" />
       <StyledNavLink path="/graph" text="Graph" />
+      <StyledNavLink path="/how-to" text="How To" />
       {auth === true ? (
         <StyledNavLink path="/logout" text="Logout" />
       ) : (

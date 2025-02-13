@@ -11,7 +11,7 @@ const Login = () => {
 
     return () => clearTimeout(timeoutID);
   }, []);
-  return <div className={styles.login_wrapper}>Redirecting to Spotify...</div>;
+  return <div className={styles.login_wrapper}>Logging in to Spotify...</div>;
 };
 
 export default Login;
