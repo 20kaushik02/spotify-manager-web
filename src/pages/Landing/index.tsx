@@ -4,10 +4,10 @@ import styles from "./Landing.module.css";
 import {
   showInfoToastNotification,
   showSuccessToastNotification,
-} from "../../components/ToastNotification";
-import AnimatedSVG from "../../components/AnimatedSVG";
+} from "../../components/ToastNotification/index.tsx";
+import AnimatedSVG from "../../components/AnimatedSVG/index.tsx";
 
-const Landing = () => {
+const Landing = (): React.ReactNode => {
   const [searchParams] = useSearchParams();
   useEffect(() => {
     if (searchParams.get("login") === "success") {

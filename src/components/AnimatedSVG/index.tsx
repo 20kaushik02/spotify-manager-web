@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./AnimatedSVG.module.css";
 
-const AnimatedSVG = () => {
+const AnimatedSVG = (): React.ReactNode => {
   const stroke = "#fff";
   return (
     <div className={styles.svg_wrapper}>

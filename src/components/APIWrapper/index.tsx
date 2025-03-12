@@ -1,10 +1,10 @@
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
-import { apiRespBaseType } from "../../api/axiosInstance";
+import type { apiRespBaseType } from "../../api/axiosInstance.ts";
 import {
   showErrorToastNotification,
   showWarnToastNotification,
-} from "../ToastNotification";
+} from "../ToastNotification/index.tsx";
 
 const maxRetries = 3;
 
@@ -29,7 +29,7 @@ const APIWrapper = async <T extends apiRespBaseType>({
   refreshAuth,
   data,
   config,
-}: APIWrapperProps<T>) => {
+}: APIWrapperProps<T>): Promise<AxiosResponse<T, any> | null> => {
   let apiResp;
   for (let i = 1; i <= maxRetries + 1; i++) {
     apiResp = await apiFn(data, config);
@@ -52,7 +52,7 @@ const APIWrapper = async <T extends apiRespBaseType>({
     }
     await sleep(i * i * 1000);
   }
-  return apiResp;
+  return apiResp ?? null;
 };
 
 export default APIWrapper;

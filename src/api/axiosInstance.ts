@@ -1,7 +1,7 @@
-import axios from "axios";
-import { backendDomain } from "./paths";
+import axios, { type AxiosInstance } from "axios";
+import { backendDomain } from "./paths.ts";
 
-export const axiosInstance = axios.create({
+export const axiosInstance: AxiosInstance = axios.create({
   baseURL: backendDomain,
   withCredentials: true,
   headers: {

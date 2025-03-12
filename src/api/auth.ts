@@ -1,6 +1,6 @@
-import { AxiosResponse } from "axios";
-import { apiRespBaseType, axiosInstance } from "./axiosInstance";
-import { authHealthCheckURL, authRefreshURL } from "./paths";
+import type { AxiosResponse } from "axios";
+import { type apiRespBaseType, axiosInstance } from "./axiosInstance.ts";
+import { authHealthCheckURL, authRefreshURL } from "./paths.ts";
 
 export const apiAuthCheck = async (): Promise<
   AxiosResponse<apiRespBaseType, any>

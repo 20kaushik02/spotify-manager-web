@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import styles from "./Login.module.css";
-import { authLoginFullURL } from "../../api/paths";
+import { authLoginFullURL } from "../../api/paths.ts";
 
 // auth through backend
-const Login = () => {
+const Login = ():React.ReactNode => {
   useEffect(() => {
     const timeoutID = setTimeout(() => {
       window.open(authLoginFullURL, "_self");

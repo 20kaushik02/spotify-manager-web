@@ -1,5 +1,5 @@
 // Libraries
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, type Context } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
@@ -9,27 +9,28 @@ import styles from "./App.module.css";
 // Assets
 
 // Utils
-import ScrollToTop from "./utils/ScrollToTop";
+import ScrollToTop from "./utils/ScrollToTop.tsx";
 
 // Components
-import Navbar from "./components/Navbar/index";
+import Navbar from "./components/Navbar/index.tsx";
 
 // Routes
-import AllRoutes from "./routes/AllRoutes";
+import AllRoutes from "./routes/AllRoutes.tsx";
 import {
   showErrorToastNotification,
   showInfoToastNotification,
   showWarnToastNotification,
-} from "./components/ToastNotification";
-import { apiAuthCheck, apiAuthRefresh } from "./api/auth";
+} from "./components/ToastNotification/index.tsx";
+import { apiAuthCheck, apiAuthRefresh } from "./api/auth.ts";
 import { ReactFlowProvider } from "@xyflow/react";
 
 // Contexts
-export const WidthContext = createContext(0);
-export const AuthContext = createContext(false);
-export const RefreshAuthContext = createContext(async () => false);
+export const WidthContext: Context<number> = createContext(0);
+export const AuthContext: Context<boolean> = createContext(false);
+export const RefreshAuthContext: Context<() => Promise<boolean>> =
+  createContext(async () => false as boolean); // why is this needed...
 
-function App() {
+function App(): React.ReactNode {
   // States
   const [width, setWidth] = useState(0);
   const [auth, setAuth] = useState(false);

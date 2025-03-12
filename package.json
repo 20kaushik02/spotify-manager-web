@@ -1,7 +1,19 @@
 {
   "name": "spotify-manager-web",
   "version": "0.1.0",
+  "description": "Frontend for spotify-manager",
+  "exports": "./src/index.tsx",
+  "type": "module",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/20kaushik02/spotify-manager-web.git"
+  },
+  "license": "MIT",
+  "author": "Kaushik Ravishankar <rknarayan02@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/20kaushik02/spotify-manager-web/issues"
+  },
   "dependencies": {
     "@dagrejs/dagre": "^1.1.4",
     "@testing-library/jest-dom": "^6.6.3",

@@ -1,16 +1,16 @@
 import { Route, Routes } from "react-router-dom";
 
-import AuthOnlyRoutes from "./AuthOnlyRoutes";
-import UnAuthOnlyRoutes from "./UnAuthOnlyRoutes";
+import AuthOnlyRoutes from "./AuthOnlyRoutes.tsx";
+import UnAuthOnlyRoutes from "./UnAuthOnlyRoutes.tsx";
 
-import Landing from "../pages/Landing";
-import PageNotFound from "../pages/PageNotFound";
-import Graph from "../pages/Graph";
-import Login from "../pages/Login";
-import Logout from "../pages/Logout";
-import HowToUse from "../pages/HowToUse";
+import Landing from "../pages/Landing/index.tsx";
+import PageNotFound from "../pages/PageNotFound/index.tsx";
+import Graph from "../pages/Graph/index.tsx";
+import Login from "../pages/Login/index.tsx";
+import Logout from "../pages/Logout/index.tsx";
+import HowToUse from "../pages/HowToUse/index.tsx";
 
-const AllRoutes = () => {
+const AllRoutes = ():React.ReactNode => {
   return (
     <Routes>
       {/* Routes that require user to be logged in */}

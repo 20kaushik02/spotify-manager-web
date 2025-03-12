@@ -39,9 +39,9 @@ import {
   showInfoToastNotification,
   showSuccessToastNotification,
   showWarnToastNotification,
-} from "../../components/ToastNotification";
+} from "../../components/ToastNotification/index.tsx";
 
-import { spotifyPlaylistLinkPrefix } from "../../api/paths";
+import { spotifyPlaylistLinkPrefix } from "../../api/paths.ts";
 import {
   apiBackfillLink,
   apiCreateLink,
@@ -49,12 +49,12 @@ import {
   apiFetchGraph,
   apiPruneLink,
   apiUpdateUserData,
-} from "../../api/operations";
+} from "../../api/operations.ts";
 
-import { RefreshAuthContext } from "../../App";
-import Button from "../../components/Button";
-import APIWrapper from "../../components/APIWrapper";
-import SimpleLoader from "../../components/SimpleLoader";
+import { RefreshAuthContext } from "../../App.tsx";
+import Button from "../../components/Button/index.tsx";
+import APIWrapper from "../../components/APIWrapper/index.tsx";
+import SimpleLoader from "../../components/SimpleLoader/index.tsx";
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -128,7 +128,7 @@ const selectedEdgeOptions: DefaultEdgeOptions = {
 
 const proOptions: ProOptions = { hideAttribution: true };
 
-const Graph = () => {
+const Graph = (): React.ReactNode => {
   const refreshAuth = useContext(RefreshAuthContext);
   const flowInstance = useReactFlow();
   const [playlistNodes, setPlaylistNodes] = useState<Node[]>(initialNodes);
@@ -153,7 +153,7 @@ const Graph = () => {
   );
 
   const onFlowSelectionChange: OnSelectionChangeFunc = useCallback(
-    ({ nodes, edges }) => {
+    ({ edges }) => {
       const selectedID = edges[0]?.id ?? "";
       setSelectedEdgeID(selectedID);
       setLinkEdges((eds) =>
@@ -204,6 +204,7 @@ const Graph = () => {
         showErrorToastNotification("Can't delete playlists!");
         return false;
       }
+      if (!edges[0]) throw new ReferenceError("no edge selected");
       console.debug(
         `deleted connection: ${edges[0].source} -> ${edges[0].target}`
       );
@@ -234,7 +235,7 @@ const Graph = () => {
       return;
     }
     const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
-
+    if (!selectedEdge) throw new ReferenceError("no edge selected");
     setLoading(true);
     const resp = await APIWrapper({
       apiFn: apiBackfillLink,
@@ -260,6 +261,7 @@ const Graph = () => {
       return;
     }
     const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
+    if (!selectedEdge) throw new ReferenceError("no edge selected");
 
     setLoading(true);
     const resp = await APIWrapper({
@@ -400,7 +402,7 @@ const Graph = () => {
     setPlaylistNodes(newNodes);
     // connect links
     const newEdges =
-      resp?.data.links?.map((link, idx) => {
+      resp?.data.links?.map((link, _idx) => {
         return {
           id: `${link.from}->${link.to}`,
           source: link.from,
@@ -501,6 +503,7 @@ const Graph = () => {
           <PiSubsetOf size={36} />
           Prune Link
         </Button>
+        <hr className={styles.divider} />
         <Button onClickMethod={() => arrangeLayout("TB")}>
           <IoIosGitNetwork size={36} />
           Arrange

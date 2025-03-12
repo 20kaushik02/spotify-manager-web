@@ -2,10 +2,10 @@ import React, { useContext } from "react";
 
 import styles from "./Navbar.module.css";
 
-import { AuthContext } from "../../App";
-import StyledNavLink from "../StyledNavLink/index";
+import { AuthContext } from "../../App.tsx";
+import StyledNavLink from "../StyledNavLink/index.tsx";
 
-const Navbar = () => {
+const Navbar = (): React.ReactNode => {
   const auth = useContext(AuthContext);
 
   return (

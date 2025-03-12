@@ -1,6 +1,7 @@
+import React from "react";
 import styles from "./SimpleLoader.module.css";
 
-const SimpleLoader = ({ text }: { text?: string }) => {
+const SimpleLoader = ({ text }: { text?: string }): React.ReactNode => {
   return (
     <div className={`${styles.container}`}>
       <div className={`${styles.loader}`}>

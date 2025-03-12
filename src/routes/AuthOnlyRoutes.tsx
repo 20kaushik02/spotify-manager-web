@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
-import { AuthContext } from "../App";
-import { showWarnToastNotification } from "../components/ToastNotification";
+import { AuthContext } from "../App.tsx";
+import { showWarnToastNotification } from "../components/ToastNotification/index.tsx";
 
-function AuthOnlyRoutes() {
+function AuthOnlyRoutes():React.ReactNode {
   let location = useLocation();
   const auth = useContext(AuthContext);
 

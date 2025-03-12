@@ -8,7 +8,7 @@ type StyledNavLinkProps = {
   text: string;
   activeClass?: string;
   inactiveClass?: string;
-}
+};
 const StyledNavLink = ({
   path = "/",
   text = "Go To",

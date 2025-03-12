@@ -1,5 +1,5 @@
-import { AxiosResponse } from "axios";
-import { apiRespBaseType, axiosInstance } from "./axiosInstance";
+import type { AxiosResponse } from "axios";
+import { type apiRespBaseType, axiosInstance } from "./axiosInstance.ts";
 import {
   opBackfillLinkURL,
   opCreateLinkURL,
@@ -7,7 +7,7 @@ import {
   opFetchGraphURL,
   opPruneLinkURL,
   opUpdateUserDataURL,
-} from "./paths";
+} from "./paths.ts";
 
 interface fetchGraphDataType extends apiRespBaseType {
   playlists?: {

@@ -6,7 +6,10 @@ type ButtonProps = {
   onClickMethod?: () => void;
 };
 
-const Button = ({ children, onClickMethod = () => {} }: ButtonProps) => {
+const Button = ({
+  children,
+  onClickMethod = () => {},
+}: ButtonProps): React.ReactNode => {
   const clickHandler = (e: React.MouseEvent) => {
     e.preventDefault();
     onClickMethod();
