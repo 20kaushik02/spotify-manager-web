@@ -38,15 +38,16 @@ interface deleteLinkDataType extends apiRespBaseType {}
 type backfillLinkBodyType = createLinkBodyType;
 
 interface backfillLinkDataType extends apiRespBaseType {
-  added?: number;
-  local?: number;
+  toAddNum: number;
+  addedNum: number;
+  localNum: number;
 }
 
 type pruneLinkBodyType = createLinkBodyType;
 
 interface pruneLinkDataType extends apiRespBaseType {
-  added?: number;
-  local?: number;
+  toDelNum: number;
+  deletedNum: number;
 }
 
 export const apiFetchGraph = async (): Promise<

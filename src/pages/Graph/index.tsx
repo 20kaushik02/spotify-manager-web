@@ -96,13 +96,13 @@ const initialInteractive: Interactive = {
   elsSel: true,
 };
 
-const nodeOptions: Partial<Node> = {
+const nodeProps: Partial<Node> = {
   style: {
     backgroundColor: "white",
   },
 };
 
-const selectedNodeOptions: Partial<Node> = {
+const selectedNodeProps: Partial<Node> = {
   style: {
     backgroundColor: "white",
     boxShadow: "0px 0px 60px 20px red",
@@ -169,16 +169,13 @@ const Graph = (): React.ReactNode => {
 
   const onFlowSelectionChange: OnSelectionChangeFunc = useCallback(
     ({ nodes, edges }) => {
-      console.log(nodes);
-      console.log(edges);
-
       const nodeSelection = nodes[0]?.id ?? "";
       setSelectedNodeID(nodeSelection);
       setPlaylistNodes((nds) =>
         nds.map((nd) =>
           nd.id === nodeSelection
-            ? { ...nd, ...selectedNodeOptions }
-            : { ...nd, ...nodeOptions }
+            ? { ...nd, ...selectedNodeProps }
+            : { ...nd, ...nodeProps }
         )
       );
       const edgeSelection = edges[0]?.id ?? "";
@@ -275,7 +272,9 @@ const Graph = (): React.ReactNode => {
     setLoading(false);
 
     if (resp?.status === 200) {
-      showSuccessToastNotification(resp?.data.message);
+      if (resp?.data.addedNum < resp?.data.toAddNum)
+        showWarnToastNotification(resp?.data.message);
+      else showSuccessToastNotification(resp?.data.message);
       return;
     }
     return;
@@ -302,7 +301,9 @@ const Graph = (): React.ReactNode => {
     setLoading(false);
 
     if (resp?.status === 200) {
-      showSuccessToastNotification(resp?.data.message);
+      if (resp?.data.deletedNum < resp?.data.toDelNum)
+        showWarnToastNotification(resp?.data.message);
+      else showSuccessToastNotification(resp?.data.message);
       return;
     }
     return;
