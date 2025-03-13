@@ -96,6 +96,19 @@ const initialInteractive: Interactive = {
   elsSel: true,
 };
 
+const nodeOptions: Partial<Node> = {
+  style: {
+    backgroundColor: "white",
+  },
+};
+
+const selectedNodeOptions: Partial<Node> = {
+  style: {
+    backgroundColor: "white",
+    boxShadow: "0px 0px 60px 20px red",
+  },
+};
+
 const edgeOptions: DefaultEdgeOptions = {
   animated: false,
   style: {
@@ -133,6 +146,7 @@ const Graph = (): React.ReactNode => {
   const flowInstance = useReactFlow();
   const [playlistNodes, setPlaylistNodes] = useState<Node[]>(initialNodes);
   const [linkEdges, setLinkEdges] = useState<Edge[]>(initialEdges);
+  const [selectedNodeID, setSelectedNodeID] = useState<Node["id"]>("");
   const [selectedEdgeID, setSelectedEdgeID] = useState<Edge["id"]>("");
   const [interactive, setInteractive] =
     useState<Interactive>(initialInteractive);
@@ -140,6 +154,7 @@ const Graph = (): React.ReactNode => {
 
   const onFlowInit: OnInit = (_instance) => {
     console.debug("flow loaded");
+    console.log(selectedNodeID);
   };
 
   // base event handling
@@ -153,18 +168,30 @@ const Graph = (): React.ReactNode => {
   );
 
   const onFlowSelectionChange: OnSelectionChangeFunc = useCallback(
-    ({ edges }) => {
-      const selectedID = edges[0]?.id ?? "";
-      setSelectedEdgeID(selectedID);
+    ({ nodes, edges }) => {
+      console.log(nodes);
+      console.log(edges);
+
+      const nodeSelection = nodes[0]?.id ?? "";
+      setSelectedNodeID(nodeSelection);
+      setPlaylistNodes((nds) =>
+        nds.map((nd) =>
+          nd.id === nodeSelection
+            ? { ...nd, ...selectedNodeOptions }
+            : { ...nd, ...nodeOptions }
+        )
+      );
+      const edgeSelection = edges[0]?.id ?? "";
+      setSelectedEdgeID(edgeSelection);
       setLinkEdges((eds) =>
         eds.map((ed) =>
-          ed.id === selectedID
+          ed.id === edgeSelection
             ? { ...ed, ...selectedEdgeOptions }
             : { ...ed, ...edgeOptions }
         )
       );
     },
-    [setLinkEdges]
+    []
   );
   useOnSelectionChange({
     onChange: onFlowSelectionChange,
@@ -330,14 +357,21 @@ const Graph = (): React.ReactNode => {
         })
       );
 
+      const connectedPositions = finalLayout.nodes.map((nd) => nd.position);
+      const largestX = connectedPositions.sort((a, b) => b.x - a.x)[0]?.x;
+      const largestY = connectedPositions.sort((a, b) => b.y - a.y)[0]?.y;
+
       finalLayout.nodes.push(
         ...unconnectedNodes.map((node, idx) => {
           const position = {
             x:
-              nodeOffsets.unconnected.origin.x +
+              // nodeOffsets.unconnected.origin.x +
+              (largestX ?? nodeOffsets.unconnected.origin.x) / 2 +
               Math.floor(idx / 5) * nodeOffsets.unconnected.scaling.x,
             y:
-              nodeOffsets.unconnected.origin.y +
+              // nodeOffsets.unconnected.origin.y +
+              (largestY ?? nodeOffsets.unconnected.origin.y) +
+              100 +
               Math.floor(idx % 5) * nodeOffsets.unconnected.scaling.y,
           };
           const x = position.x - (node.measured?.width ?? 0) / 2;
@@ -385,11 +419,11 @@ const Graph = (): React.ReactNode => {
           id: `${pl.playlistID}`,
           position: {
             x:
-              nodeOffsets.unconnected.origin.x +
-              Math.floor(idx / 15) * nodeOffsets.unconnected.scaling.x,
+              nodeOffsets.connected.origin.x +
+              Math.floor(idx / 15) * nodeOffsets.connected.scaling.x,
             y:
-              nodeOffsets.unconnected.origin.y +
-              Math.floor(idx % 15) * nodeOffsets.unconnected.scaling.y,
+              nodeOffsets.connected.origin.y +
+              Math.floor(idx % 15) * nodeOffsets.connected.scaling.y,
           },
           data: {
             label: pl.playlistName,
@@ -478,7 +512,8 @@ const Graph = (): React.ReactNode => {
         onBeforeDelete={onFlowBeforeDelete}
         nodesDraggable={interactive.ndDrag}
         nodesConnectable={interactive.ndConn}
-        nodesFocusable={false}
+        nodesFocusable
+        edgesFocusable
         elementsSelectable={interactive.elsSel}
         deleteKeyCode={["Delete"]}
         multiSelectionKeyCode={null}
@@ -499,7 +534,16 @@ const Graph = (): React.ReactNode => {
           <PiSupersetOf size={36} />
           Backfill Link
         </Button>
+        <Button>
+          <PiSupersetOf size={36} />
+          Backfill Chain
+        </Button>
+        <hr className={styles.divider} />
         <Button onClickMethod={pruneLink}>
+          <PiSubsetOf size={36} />
+          Prune Link
+        </Button>
+        <Button>
           <PiSubsetOf size={36} />
           Prune Link
         </Button>

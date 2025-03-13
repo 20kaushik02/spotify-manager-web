@@ -36,59 +36,58 @@ function App(): React.ReactNode {
   const [auth, setAuth] = useState(false);
 
   const refreshAuth = async () => {
-    const resp = await apiAuthCheck();
-    if (resp === undefined) {
+    // reauth
+    const refreshResp = await apiAuthRefresh();
+    if (refreshResp === undefined) {
       showErrorToastNotification("Please try again after sometime");
       setAuth(false);
       return false;
     }
-    if (resp.status === 200) {
+    if (refreshResp.status === 200) {
       // Success
+      showInfoToastNotification("Refreshed session.");
       setAuth(true);
       return true;
     }
-    if (resp.status >= 500) {
+    if (refreshResp.status >= 500) {
       setAuth(false);
-      showErrorToastNotification(resp.data.message);
+      showErrorToastNotification(refreshResp.data.message);
       return false;
     }
-    if (resp.status === 401) {
-      // reauth
-      const refreshResp = await apiAuthRefresh();
-      if (refreshResp === undefined) {
-        showErrorToastNotification("Please try again after sometime");
-        setAuth(false);
-        return false;
-      }
-      if (refreshResp.status === 200) {
-        // Success
-        showInfoToastNotification("Refreshed session.");
-        setAuth(true);
-        return true;
-      }
-      if (refreshResp.status >= 500) {
-        setAuth(false);
-        showErrorToastNotification(refreshResp.data.message);
-        return false;
-      }
-      if (refreshResp.status === 401) {
-        // not authed
-        setAuth(false);
-        return false;
-      }
+    if (refreshResp.status === 401) {
+      // not authed
       setAuth(false);
-      showWarnToastNotification(refreshResp.data.message);
       return false;
     }
     setAuth(false);
-    showWarnToastNotification(resp.data.message);
+    showWarnToastNotification(refreshResp.data.message);
     return false;
   };
 
   useEffect(() => {
-    (async () => {
-      await refreshAuth();
-    })();
+    const checkAuth = async () => {
+      const resp = await apiAuthCheck();
+      if (resp === undefined) {
+        showErrorToastNotification("Please try again after sometime");
+        setAuth(false);
+        return false;
+      }
+      if (resp.status === 200) {
+        // Success
+        setAuth(true);
+        return true;
+      }
+      if (resp.status >= 500) {
+        setAuth(false);
+        showErrorToastNotification(resp.data.message);
+        return false;
+      }
+      if (resp.status === 401) await refreshAuth();
+      setAuth(false);
+      showWarnToastNotification(resp.data.message);
+      return false;
+    };
+    checkAuth();
   }, []);
 
   const updateWindowDimensions = () => {
