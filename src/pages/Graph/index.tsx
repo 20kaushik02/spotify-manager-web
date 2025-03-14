@@ -43,6 +43,7 @@ import {
 
 import { spotifyPlaylistLinkPrefix } from "../../api/paths.ts";
 import {
+  apiBackfillChain,
   apiBackfillLink,
   apiCreateLink,
   apiDeleteLink,
@@ -154,7 +155,6 @@ const Graph = (): React.ReactNode => {
 
   const onFlowInit: OnInit = (_instance) => {
     console.debug("flow loaded");
-    console.log(selectedNodeID);
   };
 
   // base event handling
@@ -252,14 +252,13 @@ const Graph = (): React.ReactNode => {
     [refreshAuth]
   );
 
-  // backfill link
   const backfillLink = async () => {
     if (selectedEdgeID === "") {
-      showWarnToastNotification("Select an edge!");
+      showWarnToastNotification("Select a link!");
       return;
     }
     const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
-    if (!selectedEdge) throw new ReferenceError("no edge selected");
+    if (!selectedEdge) throw new ReferenceError("no link selected");
     setLoading(true);
     const resp = await APIWrapper({
       apiFn: apiBackfillLink,
@@ -280,7 +279,34 @@ const Graph = (): React.ReactNode => {
     return;
   };
 
-  // prune link
+  const backfillChain = async () => {
+    if (selectedNodeID === "") {
+      showWarnToastNotification("Select a playlist!");
+      return;
+    }
+    const selectedNode = playlistNodes.filter(
+      (nd) => nd.id === selectedNodeID
+    )[0];
+    if (!selectedNode) throw new ReferenceError("no playlist selected");
+    setLoading(true);
+    const resp = await APIWrapper({
+      apiFn: apiBackfillChain,
+      data: {
+        root: spotifyPlaylistLinkPrefix + selectedNodeID,
+      },
+      refreshAuth,
+    });
+    setLoading(false);
+
+    if (resp?.status === 200) {
+      if (resp?.data.addedNum < resp?.data.toAddNum)
+        showWarnToastNotification(resp?.data.message);
+      else showSuccessToastNotification(resp?.data.message);
+      return;
+    }
+    return;
+  };
+
   const pruneLink = async () => {
     if (selectedEdgeID === "") {
       showWarnToastNotification("Select an edge!");
@@ -531,29 +557,29 @@ const Graph = (): React.ReactNode => {
         <Panel position="top-right">{loading && <SimpleLoader />}</Panel>
       </ReactFlow>
       <div className={`${styles.operations_wrapper} custom_scrollbar`}>
-        <Button onClickMethod={backfillLink}>
+        <Button disabled={loading} onClickMethod={backfillLink}>
           <PiSupersetOf size={36} />
           Backfill Link
         </Button>
-        <Button>
+        <Button disabled={loading} onClickMethod={backfillChain}>
           <PiSupersetOf size={36} />
           Backfill Chain
         </Button>
         <hr className={styles.divider} />
-        <Button onClickMethod={pruneLink}>
+        <Button disabled={loading} onClickMethod={pruneLink}>
           <PiSubsetOf size={36} />
           Prune Link
         </Button>
-        <Button>
+        <Button disabled={loading}>
           <PiSubsetOf size={36} />
           Prune Link
         </Button>
         <hr className={styles.divider} />
-        <Button onClickMethod={() => arrangeLayout("TB")}>
+        <Button disabled={loading} onClickMethod={() => arrangeLayout("TB")}>
           <IoIosGitNetwork size={36} />
           Arrange
         </Button>
-        <Button onClickMethod={toggleInteractive}>
+        <Button disabled={loading} onClickMethod={toggleInteractive}>
           {isInteractive() ? (
             <MdOutlineLock size={36} />
           ) : (
@@ -562,14 +588,14 @@ const Graph = (): React.ReactNode => {
           {isInteractive() ? "Lock" : "Unlock"}
         </Button>
         <hr className={styles.divider} />
-        <Button onClickMethod={updateUserData}>
+        <Button disabled={loading} onClickMethod={updateUserData}>
           <span className={styles.icons}>
             <WiCloudRefresh size={36} />
             <AiFillSpotify size={36} />
           </span>
           Sync Spotify
         </Button>
-        <Button onClickMethod={refreshGraph}>
+        <Button disabled={loading} onClickMethod={refreshGraph}>
           <WiCloudRefresh size={36} />
           Refresh Graph
         </Button>

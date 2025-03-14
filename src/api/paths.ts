@@ -15,4 +15,5 @@ export const opUpdateUserDataURL = "api/operations/update";
 export const opCreateLinkURL = "api/operations/link";
 export const opDeleteLinkURL: "api/operations/link" = opCreateLinkURL;
 export const opBackfillLinkURL = "api/operations/populate/link";
+export const opBackfillChainURL = "api/operations/populate/chain";
 export const opPruneLinkURL = "api/operations/prune/link";

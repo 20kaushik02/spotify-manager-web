@@ -1,6 +1,7 @@
 import type { AxiosResponse } from "axios";
 import { type apiRespBaseType, axiosInstance } from "./axiosInstance.ts";
 import {
+  opBackfillChainURL,
   opBackfillLinkURL,
   opCreateLinkURL,
   opDeleteLinkURL,
@@ -38,6 +39,16 @@ interface deleteLinkDataType extends apiRespBaseType {}
 type backfillLinkBodyType = createLinkBodyType;
 
 interface backfillLinkDataType extends apiRespBaseType {
+  toAddNum: number;
+  addedNum: number;
+  localNum: number;
+}
+
+type backfillChainBodyType = {
+  root: string; // playlistID
+};
+
+interface backfillChainDataType extends apiRespBaseType {
   toAddNum: number;
   addedNum: number;
   localNum: number;
@@ -99,6 +110,17 @@ export const apiBackfillLink = async (
 ): Promise<AxiosResponse<backfillLinkDataType, any>> => {
   try {
     const response = await axiosInstance.put(opBackfillLinkURL, data);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const apiBackfillChain = async (
+  data: backfillChainBodyType
+): Promise<AxiosResponse<backfillChainDataType, any>> => {
+  try {
+    const response = await axiosInstance.put(opBackfillChainURL, data);
     return response;
   } catch (error: any) {
     return error.response;

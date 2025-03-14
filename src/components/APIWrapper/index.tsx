@@ -14,22 +14,19 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // because hooks (namely, useContext) can't be used outside functional components
 // so find a better way to pass refreshAuth
 
-type APIWrapperProps<T extends apiRespBaseType> = {
-  apiFn(
-    data?: any,
-    config?: AxiosRequestConfig
-  ): Promise<AxiosResponse<T, any>>;
+type APIWrapperProps<B, T extends apiRespBaseType> = {
+  apiFn(data?: B, config?: AxiosRequestConfig): Promise<AxiosResponse<T, any>>;
   refreshAuth: () => Promise<boolean>;
-  data?: any;
+  data?: B;
   config?: AxiosRequestConfig;
 };
 
-const APIWrapper = async <T extends apiRespBaseType>({
+const APIWrapper = async <B, T extends apiRespBaseType>({
   apiFn,
   refreshAuth,
   data,
   config,
-}: APIWrapperProps<T>): Promise<AxiosResponse<T, any> | null> => {
+}: APIWrapperProps<B, T>): Promise<AxiosResponse<T, any> | null> => {
   let apiResp;
   for (let i = 1; i <= maxRetries + 1; i++) {
     apiResp = await apiFn(data, config);
