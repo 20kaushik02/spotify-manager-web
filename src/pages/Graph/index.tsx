@@ -48,6 +48,7 @@ import {
   apiCreateLink,
   apiDeleteLink,
   apiFetchGraph,
+  apiPruneChain,
   apiPruneLink,
   apiUpdateUserData,
 } from "../../api/operations.ts";
@@ -354,6 +355,34 @@ const Graph = (): React.ReactNode => {
     return;
   };
 
+  const pruneChain = async () => {
+    if (selectedNodeID === "") {
+      showWarnToastNotification("Select a playlist!");
+      return;
+    }
+    const selectedNode = playlistNodes.filter(
+      (nd) => nd.id === selectedNodeID
+    )[0];
+    if (!selectedNode) throw new ReferenceError("no playlist selected");
+    setLoading(true);
+    const resp = await APIWrapper({
+      apiFn: apiPruneChain,
+      data: {
+        root: spotifyPlaylistLinkPrefix + selectedNodeID,
+      },
+      refreshAuth,
+    });
+    setLoading(false);
+
+    if (resp?.status === 200) {
+      if (resp?.data.deletedNum < resp?.data.toDelNum)
+        showWarnToastNotification(resp?.data.message);
+      else showSuccessToastNotification(resp?.data.message);
+      return;
+    }
+    return;
+  };
+
   type getLayoutedElementsOpts = {
     direction: rankdirType;
   };
@@ -570,9 +599,9 @@ const Graph = (): React.ReactNode => {
           <PiSubsetOf size={36} />
           Prune Link
         </Button>
-        <Button disabled={loading}>
+        <Button disabled={loading} onClickMethod={pruneChain}>
           <PiSubsetOf size={36} />
-          Prune Link
+          Prune Chain
         </Button>
         <hr className={styles.divider} />
         <Button disabled={loading} onClickMethod={() => arrangeLayout("TB")}>

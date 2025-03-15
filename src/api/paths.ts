@@ -17,3 +17,4 @@ export const opDeleteLinkURL: "api/operations/link" = opCreateLinkURL;
 export const opBackfillLinkURL = "api/operations/populate/link";
 export const opBackfillChainURL = "api/operations/populate/chain";
 export const opPruneLinkURL = "api/operations/prune/link";
+export const opPruneChainURL = "api/operations/prune/chain";

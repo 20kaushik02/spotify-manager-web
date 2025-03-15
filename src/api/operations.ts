@@ -6,6 +6,7 @@ import {
   opCreateLinkURL,
   opDeleteLinkURL,
   opFetchGraphURL,
+  opPruneChainURL,
   opPruneLinkURL,
   opUpdateUserDataURL,
 } from "./paths.ts";
@@ -48,11 +49,7 @@ type backfillChainBodyType = {
   root: string; // playlistID
 };
 
-interface backfillChainDataType extends apiRespBaseType {
-  toAddNum: number;
-  addedNum: number;
-  localNum: number;
-}
+interface backfillChainDataType extends backfillLinkDataType {}
 
 type pruneLinkBodyType = createLinkBodyType;
 
@@ -60,6 +57,10 @@ interface pruneLinkDataType extends apiRespBaseType {
   toDelNum: number;
   deletedNum: number;
 }
+
+type pruneChainBodyType = backfillChainBodyType;
+
+interface pruneChainDataType extends pruneLinkDataType {}
 
 export const apiFetchGraph = async (): Promise<
   AxiosResponse<fetchGraphDataType, any>
@@ -132,6 +133,17 @@ export const apiPruneLink = async (
 ): Promise<AxiosResponse<pruneLinkDataType, any>> => {
   try {
     const response = await axiosInstance.put(opPruneLinkURL, data);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const apiPruneChain = async (
+  data: pruneChainBodyType
+): Promise<AxiosResponse<pruneChainDataType, any>> => {
+  try {
+    const response = await axiosInstance.put(opPruneChainURL, data);
     return response;
   } catch (error: any) {
     return error.response;
