@@ -47,7 +47,7 @@ const APIWrapper = async <B, T extends apiRespBaseType>({
     } else {
       showErrorToastNotification(apiResp.data.message);
     }
-    await sleep(i * i * 1000);
+    await sleep(i * 1000);
   }
   return apiResp ?? null;
 };

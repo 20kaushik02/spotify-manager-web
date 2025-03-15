@@ -106,39 +106,36 @@ const nodeProps: Partial<Node> = {
 const selectedNodeProps: Partial<Node> = {
   style: {
     backgroundColor: "white",
-    boxShadow: "0px 0px 60px 20px red",
+    boxShadow: "0px 0px 40px 10px red",
   },
 };
 
-const edgeOptions: DefaultEdgeOptions = {
-  animated: false,
-  style: {
-    stroke: "white",
-    strokeWidth: 2,
-  },
-  markerEnd: {
-    type: MarkerType.ArrowClosed,
-    color: "white",
-    width: 16,
-    height: 16,
-    orient: "auto",
-  },
+interface buildEdgeOptionsArgs {
+  animated?: boolean;
+  color: string;
+}
+const buildEdgeOptions: (opts: buildEdgeOptionsArgs) => DefaultEdgeOptions = ({
+  animated = false,
+  color,
+}): DefaultEdgeOptions => {
+  return {
+    animated,
+    style: {
+      stroke: `${color}`,
+      strokeWidth: 2,
+    },
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color,
+      width: 16,
+      height: 16,
+      orient: "auto",
+    },
+  };
 };
 
-const selectedEdgeOptions: DefaultEdgeOptions = {
-  animated: true,
-  style: {
-    stroke: "red",
-    strokeWidth: 2,
-  },
-  markerEnd: {
-    type: MarkerType.ArrowClosed,
-    color: "red",
-    width: 16,
-    height: 16,
-    orient: "auto",
-  },
-};
+const edgeOptions = buildEdgeOptions({ color: "white" });
+const selectedEdgeOptions = buildEdgeOptions({ animated: true, color: "red" });
 
 const proOptions: ProOptions = { hideAttribution: true };
 
@@ -153,6 +150,28 @@ const Graph = (): React.ReactNode => {
     useState<Interactive>(initialInteractive);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const disableInteractive = () => {
+    setInteractive({
+      ndDrag: false,
+      ndConn: false,
+      elsSel: false,
+    });
+  };
+  const enableInteractive = () => {
+    setInteractive({
+      ndDrag: true,
+      ndConn: true,
+      elsSel: true,
+    });
+  };
+
+  const isInteractive = useCallback(() => {
+    return interactive.ndDrag || interactive.ndConn || interactive.elsSel;
+  }, [interactive]);
+
+  const toggleInteractive = () => {
+    isInteractive() ? disableInteractive() : enableInteractive();
+  };
   const onFlowInit: OnInit = (_instance) => {
     console.debug("flow loaded");
   };
@@ -169,6 +188,7 @@ const Graph = (): React.ReactNode => {
 
   const onFlowSelectionChange: OnSelectionChangeFunc = useCallback(
     ({ nodes, edges }) => {
+      if (!isInteractive()) return;
       const nodeSelection = nodes[0]?.id ?? "";
       setSelectedNodeID(nodeSelection);
       setPlaylistNodes((nds) =>
@@ -188,7 +208,7 @@ const Graph = (): React.ReactNode => {
         )
       );
     },
-    []
+    [isInteractive]
   );
   useOnSelectionChange({
     onChange: onFlowSelectionChange,
@@ -201,7 +221,6 @@ const Graph = (): React.ReactNode => {
         `new connection: ${connection.source} -> ${connection.target}`
       );
       // call API to create link
-      const spotifyPlaylistLinkPrefix = "https://open.spotify.com/playlist/";
       setLoading(true);
       const resp = await APIWrapper({
         apiFn: apiCreateLink,
@@ -258,7 +277,7 @@ const Graph = (): React.ReactNode => {
       return;
     }
     const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
-    if (!selectedEdge) throw new ReferenceError("no link selected");
+    if (!selectedEdge) throw new ReferenceError("no edge selected");
     setLoading(true);
     const resp = await APIWrapper({
       apiFn: apiBackfillLink,
@@ -309,7 +328,7 @@ const Graph = (): React.ReactNode => {
 
   const pruneLink = async () => {
     if (selectedEdgeID === "") {
-      showWarnToastNotification("Select an edge!");
+      showWarnToastNotification("Select a link!");
       return;
     }
     const selectedEdge = linkEdges.filter((ed) => ed.id === selectedEdgeID)[0];
@@ -496,28 +515,9 @@ const Graph = (): React.ReactNode => {
     fetchGraph();
   }, [fetchGraph]);
 
-  const disableInteractive = () => {
-    setInteractive({
-      ndDrag: false,
-      ndConn: false,
-      elsSel: false,
-    });
-  };
-  const enableInteractive = () => {
-    setInteractive({
-      ndDrag: true,
-      ndConn: true,
-      elsSel: true,
-    });
-  };
-
-  const isInteractive = () => {
-    return interactive.ndDrag || interactive.ndConn || interactive.elsSel;
-  };
-
-  const toggleInteractive = () => {
-    isInteractive() ? disableInteractive() : enableInteractive();
-  };
+  useEffect(() => {
+    loading ? disableInteractive() : enableInteractive();
+  }, [loading]);
 
   return (
     <div className={`${styles.graph_wrapper} ${loading && styles.loading}`}>
