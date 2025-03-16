@@ -9,13 +9,15 @@ import Graph from "../pages/Graph/index.tsx";
 import Login from "../pages/Login/index.tsx";
 import Logout from "../pages/Logout/index.tsx";
 import HowToUse from "../pages/HowToUse/index.tsx";
+import Settings from "../pages/Settings/index.tsx";
 
-const AllRoutes = ():React.ReactNode => {
+const AllRoutes = (): React.ReactNode => {
   return (
     <Routes>
       {/* Routes that require user to be logged in */}
       <Route element={<AuthOnlyRoutes />}>
         <Route path="/logout" element={<Logout />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/graph" element={<Graph />} />
         {/* <Route path="/playlists" element={<Playlists />} /> */}
       </Route>

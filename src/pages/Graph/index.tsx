@@ -32,7 +32,8 @@ import { IoIosGitNetwork } from "react-icons/io";
 import { WiCloudRefresh } from "react-icons/wi";
 import { MdOutlineLock, MdOutlineLockOpen } from "react-icons/md";
 import { AiFillSpotify } from "react-icons/ai";
-import { PiSupersetOf, PiSubsetOf } from "react-icons/pi";
+import { GiFamilyTree } from "react-icons/gi";
+import { IoArrowDownOutline, IoArrowUpOutline } from "react-icons/io5";
 
 import {
   showErrorToastNotification,
@@ -587,20 +588,26 @@ const Graph = (): React.ReactNode => {
       </ReactFlow>
       <div className={`${styles.operations_wrapper} custom_scrollbar`}>
         <Button disabled={loading} onClickMethod={backfillLink}>
-          <PiSupersetOf size={36} />
+          <IoArrowUpOutline size={36} />
           Backfill Link
         </Button>
         <Button disabled={loading} onClickMethod={backfillChain}>
-          <PiSupersetOf size={36} />
+          <span>
+            <IoArrowUpOutline size={24} />
+            <GiFamilyTree size={24} />
+          </span>
           Backfill Chain
         </Button>
         <hr className={styles.divider} />
         <Button disabled={loading} onClickMethod={pruneLink}>
-          <PiSubsetOf size={36} />
+          <IoArrowDownOutline size={36} />
           Prune Link
         </Button>
         <Button disabled={loading} onClickMethod={pruneChain}>
-          <PiSubsetOf size={36} />
+          <span>
+            <IoArrowDownOutline size={24} />
+            <GiFamilyTree size={24} style={{ transform: "rotate(180deg)" }} />
+          </span>
           Prune Chain
         </Button>
         <hr className={styles.divider} />

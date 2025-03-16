@@ -1,0 +1,13 @@
+.settings_wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10vw;
+  font-size: var(--headingFontSize);
+}
+
+.settings_controls {
+  padding: var(--mb-4);
+  background-color: var(--bgNav);
+}

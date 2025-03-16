@@ -13,6 +13,7 @@ const Navbar = (): React.ReactNode => {
       <StyledNavLink path="/" text="About" />
       <StyledNavLink path="/graph" text="Graph" />
       <StyledNavLink path="/how-to" text="How To" />
+      <StyledNavLink path="/settings" text="Settings" />
       {auth === true ? (
         <StyledNavLink path="/logout" text="Logout" />
       ) : (
