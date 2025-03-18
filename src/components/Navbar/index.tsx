@@ -10,12 +10,11 @@ const Navbar = (): React.ReactNode => {
 
   return (
     <nav className={`${styles.navbar_wrapper} custom_scrollbar`}>
-      <StyledNavLink path="/" text="About" />
+      <StyledNavLink path="/" text="Home" />
       <StyledNavLink path="/graph" text="Graph" />
       <StyledNavLink path="/how-to" text="How To" />
-      <StyledNavLink path="/settings" text="Settings" />
       {auth === true ? (
-        <StyledNavLink path="/logout" text="Logout" />
+        <StyledNavLink path="/settings" text="Settings" />
       ) : (
         <StyledNavLink path="/login" text="Login" />
       )}

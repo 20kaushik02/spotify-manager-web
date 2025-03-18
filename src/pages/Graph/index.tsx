@@ -249,7 +249,10 @@ const Graph = (): React.ReactNode => {
         showErrorToastNotification("Can't delete playlists!");
         return false;
       }
-      if (!edges[0]) throw new ReferenceError("no edge selected");
+      if (!edges[0]) {
+        showWarnToastNotification("Select a link!");
+        return false;
+      }
       console.debug(
         `deleted connection: ${edges[0].source} -> ${edges[0].target}`
       );
@@ -598,7 +601,7 @@ const Graph = (): React.ReactNode => {
           </span>
           Backfill Chain
         </Button>
-        <hr className={styles.divider} />
+        <hr className="divider" />
         <Button disabled={loading} onClickMethod={pruneLink}>
           <IoArrowDownOutline size={36} />
           Prune Link
@@ -610,7 +613,7 @@ const Graph = (): React.ReactNode => {
           </span>
           Prune Chain
         </Button>
-        <hr className={styles.divider} />
+        <hr className="divider" />
         <Button disabled={loading} onClickMethod={() => arrangeLayout("TB")}>
           <IoIosGitNetwork size={36} />
           Arrange
@@ -623,7 +626,7 @@ const Graph = (): React.ReactNode => {
           )}
           {isInteractive() ? "Lock" : "Unlock"}
         </Button>
-        <hr className={styles.divider} />
+        <hr className="divider" />
         <Button disabled={loading} onClickMethod={updateUserData}>
           <span className={styles.icons}>
             <WiCloudRefresh size={36} />

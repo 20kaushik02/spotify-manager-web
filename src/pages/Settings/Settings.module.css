@@ -4,10 +4,45 @@
   align-items: center;
   justify-content: center;
   margin-right: 10vw;
-  font-size: var(--headingFontSize);
 }
 
 .settings_controls {
-  padding: var(--mb-4);
+  width: 20vw;
+  gap: var(--mb-2);
+  padding: var(--mb-2);
   background-color: var(--bgNav);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings_dataFile {
+  color: transparent;
+}
+.settings_dataFile::-webkit-file-upload-button {
+  visibility: hidden;
+}
+.settings_dataFile::before {
+  content: "Upload";
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg);
+  /* border: 1px solid #999; */
+  padding: var(--mb-2) 0;
+  outline: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+.settings_dataFile:hover::before {
+  border-color: black;
+}
+
+.settings_dataFile_selection {
+  text-align: center;
 }

@@ -33,7 +33,7 @@ export const RefreshAuthContext: Context<() => Promise<boolean>> =
 function App(): React.ReactNode {
   // States
   const [width, setWidth] = useState(0);
-  const [auth, setAuth] = useState(false);
+  const [auth, setAuth] = useState(true);
 
   const refreshAuth = async () => {
     // reauth
@@ -82,7 +82,9 @@ function App(): React.ReactNode {
         showErrorToastNotification(resp.data.message);
         return false;
       }
-      if (resp.status === 401) await refreshAuth();
+      if (resp.status === 401) {
+        return await refreshAuth();
+      }
       setAuth(false);
       showWarnToastNotification(resp.data.message);
       return false;
