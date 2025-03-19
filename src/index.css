@@ -69,6 +69,32 @@ ul {
 h1 {
   font-size: var(--headingFontSize);
 }
+h2 {
+  font-size: calc(0.9 * var(--headingFontSize));
+}
+h3 {
+  font-size: calc(0.8 * var(--headingFontSize));
+}
+h4 {
+  font-size: calc(0.7 * var(--headingFontSize));
+}
+h5 {
+  font-size: calc(0.6 * var(--headingFontSize));
+}
+h6 {
+  font-size: calc(0.5 * var(--headingFontSize));
+}
+
+a,
+a:link,
+a:visited,
+a:focus,
+a:hover,
+a:active {
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--text);
+}
 
 img {
   max-width: 100%;

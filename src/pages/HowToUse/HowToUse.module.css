@@ -1,6 +1,28 @@
 .htu_wrapper {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-right: 10vw;
+  gap: var(--mb-1);
+  padding: var(--mb-6);
+}
+
+.htu_content_wrapper {
+  word-wrap: break-word;
+  width: 80%;
+}
+
+.htu_content_wrapper > ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mb-2);
+  list-style-type: none;
+}
+.htu_content_wrapper ul ul {
+  list-style-type: "- ";
+}
+.htu_content_wrapper ul ol,
+.htu_content_wrapper ul ul {
+  margin-left: var(--mb-4);
 }

@@ -1,12 +1,35 @@
-.app_header {
+.landing_wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-right: 10vw;
+  gap: var(--mb-2);
 }
 
-.app_logo {
-  height: 40vmin;
-  pointer-events: none;
+.landing_header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing_content_wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mb-2);
+}
+
+.landing_content {
+  text-align: justify;
+  list-style-type: none;
+}
+
+.landing_links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }

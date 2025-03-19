@@ -18,7 +18,9 @@ const StyledNavLink = ({
   return (
     <NavLink
       to={path}
-      className={({ isActive }) => (isActive ? activeClass : inactiveClass)}
+      className={({ isActive }) =>
+        `${styles.base_link} ${isActive ? activeClass : inactiveClass}`
+      }
     >
       {text}
     </NavLink>

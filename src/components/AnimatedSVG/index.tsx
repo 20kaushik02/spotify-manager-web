@@ -1,15 +1,16 @@
 import React from "react";
 import styles from "./AnimatedSVG.module.css";
 
-const AnimatedSVG = (): React.ReactNode => {
+type AnimatedSVGProps = { size?: number };
+const AnimatedSVG = ({ size = 256 }: AnimatedSVGProps): React.ReactNode => {
   const stroke = "#fff";
   return (
     <div className={styles.svg_wrapper}>
       {/* width, height and viewBox are necessary */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="256"
-        height="256" // adjust size here
+        width={size}
+        height={size}
         viewBox="0 0 512 512"
         preserveAspectRatio="xMidYMid meet"
       >

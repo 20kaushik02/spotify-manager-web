@@ -31,7 +31,7 @@ import styles from "./Graph.module.css";
 import { IoIosGitNetwork } from "react-icons/io";
 import { WiCloudRefresh } from "react-icons/wi";
 import { MdOutlineLock, MdOutlineLockOpen } from "react-icons/md";
-import { AiFillSpotify } from "react-icons/ai";
+import { AiFillSpotify, AiOutlineDisconnect } from "react-icons/ai";
 import { GiFamilyTree } from "react-icons/gi";
 import { IoArrowDownOutline, IoArrowUpOutline } from "react-icons/io5";
 
@@ -240,6 +240,13 @@ const Graph = (): React.ReactNode => {
     },
     [setLinkEdges, refreshAuth]
   );
+
+  // manually triggering edge removal
+  const removeSelectedEdge = async () => {
+    await flowInstance.deleteElements({
+      edges: linkEdges.filter((ed) => ed.id === selectedEdgeID),
+    });
+  };
 
   // remove edge
   const onFlowBeforeDelete: OnBeforeDelete = useCallback(
@@ -588,45 +595,63 @@ const Graph = (): React.ReactNode => {
         />
         <Background variant={BackgroundVariant.Dots} gap={36} size={3} />
         <Panel position="top-right">{loading && <SimpleLoader />}</Panel>
+        {selectedEdgeID !== "" && (
+          <Panel position="top-left">
+            <Button onClickMethod={removeSelectedEdge}>
+              <AiOutlineDisconnect size={36} />
+              Delete Link
+            </Button>
+          </Panel>
+        )}
       </ReactFlow>
       <div className={`${styles.operations_wrapper} custom_scrollbar`}>
-        <Button disabled={loading} onClickMethod={backfillLink}>
-          <IoArrowUpOutline size={36} />
-          Backfill Link
-        </Button>
-        <Button disabled={loading} onClickMethod={backfillChain}>
-          <span>
-            <IoArrowUpOutline size={24} />
-            <GiFamilyTree size={24} />
-          </span>
-          Backfill Chain
-        </Button>
-        <hr className="divider" />
-        <Button disabled={loading} onClickMethod={pruneLink}>
-          <IoArrowDownOutline size={36} />
-          Prune Link
-        </Button>
-        <Button disabled={loading} onClickMethod={pruneChain}>
-          <span>
-            <IoArrowDownOutline size={24} />
-            <GiFamilyTree size={24} style={{ transform: "rotate(180deg)" }} />
-          </span>
-          Prune Chain
-        </Button>
-        <hr className="divider" />
-        <Button disabled={loading} onClickMethod={() => arrangeLayout("TB")}>
-          <IoIosGitNetwork size={36} />
-          Arrange
-        </Button>
-        <Button disabled={loading} onClickMethod={toggleInteractive}>
-          {isInteractive() ? (
-            <MdOutlineLock size={36} />
-          ) : (
-            <MdOutlineLockOpen size={36} />
-          )}
-          {isInteractive() ? "Lock" : "Unlock"}
-        </Button>
-        <hr className="divider" />
+        {linkEdges.length > 0 ? (
+          <>
+            <Button disabled={loading} onClickMethod={backfillLink}>
+              <IoArrowUpOutline size={36} />
+              Backfill Link
+            </Button>
+            <Button disabled={loading} onClickMethod={backfillChain}>
+              <span>
+                <IoArrowUpOutline size={24} />
+                <GiFamilyTree size={24} />
+              </span>
+              Backfill Chain
+            </Button>
+            <hr className="divider" />
+            <Button disabled={loading} onClickMethod={pruneLink}>
+              <IoArrowDownOutline size={36} />
+              Prune Link
+            </Button>
+            <Button disabled={loading} onClickMethod={pruneChain}>
+              <span>
+                <IoArrowDownOutline size={24} />
+                <GiFamilyTree
+                  size={24}
+                  style={{ transform: "rotate(180deg)" }}
+                />
+              </span>
+              Prune Chain
+            </Button>
+            <hr className="divider" />
+            <Button
+              disabled={loading}
+              onClickMethod={() => arrangeLayout("TB")}
+            >
+              <IoIosGitNetwork size={36} />
+              Arrange
+            </Button>
+            <Button disabled={loading} onClickMethod={toggleInteractive}>
+              {isInteractive() ? (
+                <MdOutlineLock size={36} />
+              ) : (
+                <MdOutlineLockOpen size={36} />
+              )}
+              {isInteractive() ? "Lock" : "Unlock"}
+            </Button>
+            <hr className="divider" />
+          </>
+        ) : null}
         <Button disabled={loading} onClickMethod={updateUserData}>
           <span className={styles.icons}>
             <WiCloudRefresh size={36} />

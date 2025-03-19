@@ -1,10 +1,7 @@
-a {
+.base_link {
   padding: var(--mb-3) var(--mb-1);
   border-radius: 2%;
   width: 100%;
-  cursor: pointer;
-  text-decoration: none;
-  color: var(--text);
   text-align: center;
 }
 
@@ -15,5 +12,5 @@ a {
 
 .inactive_link {
   background-color: var(--bgLinkInactive);
-  box-shadow: 2px 2px var(--bg);
+  box-shadow: 6px 6px var(--bg);
 }

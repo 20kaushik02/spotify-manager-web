@@ -24,7 +24,7 @@
   visibility: hidden;
 }
 .settings_dataFile::before {
-  content: "Upload";
+  content: "Select File";
   color: var(--text);
   display: flex;
   flex-direction: column;
