@@ -14,6 +14,7 @@
   "bugs": {
     "url": "https://github.com/20kaushik02/spotify-manager-web/issues"
   },
+  "homepage": "https://spotify-manager.knravish.me",
   "dependencies": {
     "@dagrejs/dagre": "^1.1.4",
     "@testing-library/jest-dom": "^6.6.3",

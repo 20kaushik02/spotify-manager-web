@@ -4,6 +4,7 @@ import Button from "../../components/Button/index.tsx";
 import { loadExportDataFullURL } from "../../api/paths.ts";
 import { useNavigate } from "react-router-dom";
 import {
+  showInfoToastNotification,
   showSuccessToastNotification,
   showWarnToastNotification,
 } from "../../components/ToastNotification/index.tsx";
@@ -33,6 +34,9 @@ const Settings = (): React.ReactNode => {
       return;
     }
     setDataFile(selectedFile);
+    showInfoToastNotification(
+      "Note: Importing will overwrite all links currently in-place."
+    );
   };
 
   const importGraph = async () => {

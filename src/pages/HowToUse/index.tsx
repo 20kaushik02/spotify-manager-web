@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styles from "./HowToUse.module.css";
 const HowToUse = (): React.ReactNode => {
   return (
@@ -11,9 +12,9 @@ const HowToUse = (): React.ReactNode => {
             <ul>
               <li>
                 In the{" "}
-                <a href="/graph">
+                <Link to="/graph">
                   <u>graph</u>
-                </a>{" "}
+                </Link>{" "}
                 manager, click 'Sync Spotify' to load your playlists into the
                 app. This pulls your latest Spotify playlists into the
                 application.
@@ -107,14 +108,14 @@ const HowToUse = (): React.ReactNode => {
             <ul>
               Check it out on GitHub:
               <li>
-                <a href="https://github.com/20kaushik02/spotify-manager-web">
+                <Link to="https://github.com/20kaushik02/spotify-manager-web">
                   <u>The front-end - ReactJS (ReactFlow)</u>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="https://github.com/20kaushik02/spotify-manager">
+                <Link to="https://github.com/20kaushik02/spotify-manager">
                   <u>The REST API - ExpressJS</u>
-                </a>
+                </Link>
               </li>
             </ul>
           </li>
