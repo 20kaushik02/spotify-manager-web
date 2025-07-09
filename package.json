@@ -16,7 +16,7 @@
   },
   "homepage": "https://spotify-manager.knravish.me",
   "dependencies": {
-    "@dagrejs/dagre": "^1.1.4",
+    "@dagrejs/dagre": "^1.1.5",
     "@types/react": "^19.1.7",
     "@types/react-dom": "^19.1.6",
     "@xyflow/react": "^12.6.4",
